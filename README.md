@@ -5,7 +5,7 @@ This is a repository for our SQL Multi-Agent System for Question-Answering as pa
 Setup Instructions
 1. **Clone the Repository**
 ```bash
-git clone https://github.com/yourusername/your_project.git
+git clone git@github.com:iwan-tee/SMASQA.git
 cd your_project
 ```
 2. **Install Poetry**
