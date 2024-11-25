@@ -13,7 +13,6 @@ If you don't have Poetry installed:
 For Unix/macOS:
 
 ```bash
-Copy code
 curl -sSL https://install.python-poetry.org | python3 -
 ```
 For Windows (PowerShell):
