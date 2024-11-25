@@ -1,0 +1,26 @@
+[tool.poetry]
+name = "smasqa"
+version = "0.1.0"
+description = ""
+authors = ["Nikita Shishelyakin", "Ivan Tunov"]
+license = "MIT"
+
+[tool.poetry.dependencies]
+python = "^3.10"
+
+[tool.poetry.dev-dependencies]
+poethepoet = "^0.31.0"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
+
+[tool.poe]
+envfile = ".env"
+
+[tool.poe.tasks]
+# Simple task
+install = "poetry install"
+
+# Run hello world
+hello = "python scripts/hello.py"
