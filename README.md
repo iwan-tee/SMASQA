@@ -6,7 +6,7 @@ Setup Instructions
 1. **Clone the Repository**
 ```bash
 git clone git@github.com:iwan-tee/SMASQA.git
-cd your_project
+cd SMASQA
 ```
 2. **Install Poetry**
 If you don't have Poetry installed:
