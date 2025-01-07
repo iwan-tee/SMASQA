@@ -9,6 +9,7 @@ license = "MIT"
 python = "^3.10"
 python-dotenv = "^1.0.1"
 openai = "^1.55.1"
+swarm = { git = "https://github.com/openai/swarm.git" }
 
 [tool.poetry.dev-dependencies]
 poethepoet = "^0.31.0"
@@ -26,3 +27,8 @@ install = "poetry install"
 
 # Run hello world
 hello = "python scripts/hello.py"
+
+extractQs = "python scripts/extractQs.py"
+
+#run swarm
+swarm = "python scripts/swarm/index.py"
