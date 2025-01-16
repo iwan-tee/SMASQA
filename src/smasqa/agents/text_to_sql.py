@@ -1,5 +1,6 @@
 from openai import OpenAI
 
+
 class TextToSqlAgent:
     def __init__(self, db_description):
         """
@@ -7,7 +8,7 @@ class TextToSqlAgent:
         """
         self.client = OpenAI()
         self.db_description = db_description
-    
+
     def generate(self, user_query):
         system_message = f"""
         You are an AI assistant specialized in generating SQL queries.
@@ -35,13 +36,13 @@ class TextToSqlAgent:
         """
         user_message = f"user_query: {user_query}\n database description: {self.db_description}"
 
-        completion = client.chat.completions.create(
-                model="gpt-4o-mini",
-                messages=[
-                    {"role": "system", "content": system_message},
-                    {"role": "user", "content": user_message}
-                    ]
-                )
+        completion = self.client.chat.completions.create(
+            model="gpt-4o-mini",
+            messages=[
+                {"role": "system", "content": system_message},
+                {"role": "user", "content": user_message}
+            ]
+        )
 
         sql_query = completion.choices[0].message.content
         return sql_query
