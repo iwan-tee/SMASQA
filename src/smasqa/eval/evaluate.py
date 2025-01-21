@@ -1,7 +1,7 @@
 import pandas as pd
 import random
 
-batch_data_path = "/mnt/data/batch_1_enriched.csv"
+batch_data_path = "path_to_data"
 labeled_data = pd.read_csv(batch_data_path)
 
 # Stub for the model
