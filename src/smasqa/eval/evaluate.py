@@ -1,17 +1,57 @@
 import pandas as pd
 import random
+from openai import OpenAI
 
-batch_data_path = "path_to_data"
-labeled_data = pd.read_csv(batch_data_path)
+default_file_name = "batch_1_enriched.csv"
+default_path = "./src/smasqa/eval/datasets/"
+labeled_data = pd.read_csv(default_path + default_file_name, ";")
 
-# Stub for the model
 
-
-def model_stub(question, answers):
+def model_stub(question, answers, dataset=None):
     """
     Model stub: Always selects the first answer.
     """
     return answers[0]
+
+
+def model_run(question, answers, dataset=None):
+    """
+    Chooses the best answer from an array of answers based on a dataset using OpenAI API.
+
+    Parameters:
+    - question (str): The question asked.
+    - answers (list of str): List of possible answers.
+    - dataset (pd.DataFrame): Dataset relevant to the question.
+
+    Returns:
+    - str: The chosen answer.
+    """
+    # Convert dataset to a textual summary
+    dataset_text = " ".join(dataset.astype(str).fillna("NA").values.flatten())
+
+    # Prepare the messages for OpenAI
+    messages = [
+        {"role": "system", "content": "You are a helpful assistant."},
+        {"role": "user",
+            "content": f"Question: {question}\nDataset: {dataset_text}\nAnswers: {', '.join(answers)}\n\nBased on the dataset and the question, choose the most appropriate answer from the provided options and explain your reasoning."}
+    ]
+
+    try:
+        # Initialize OpenAI client
+        client = OpenAI()
+
+        # Call OpenAI API
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=messages
+        )
+
+        # Extract the answer from the response
+        answer = response.choices[0].message.content.strip()
+        return answer
+
+    except Exception as e:
+        return f"Error in processing: {str(e)}"
 
 
 def evaluate_system(row):
@@ -20,7 +60,13 @@ def evaluate_system(row):
                row["Answer 3"], row["Answer 4"]]
     shuffled_answers = random.sample(answers, len(answers))
     correct_answer = row["Answer 1"]
-    model_choice = model_stub(row["question"], shuffled_answers)
+
+    if 'file_name' not in row:
+        row['file_name'] = default_file_name
+
+    data = pd.read_csv("./src/smasqa/eval/datasets/" + row['file_name'], ";")
+
+    model_choice = model_stub(row["question"], shuffled_answers, data)
 
     is_correct = model_choice == correct_answer
     return is_correct, correct_answer, model_choice
