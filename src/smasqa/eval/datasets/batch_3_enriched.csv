@@ -1,0 +1,159 @@
+question;SQL_query;groundtruth;Answer 1;Answer 2;Answer 3;Answer 4
+What is the count of distinct cities in the dataset?;"select count(distinct(city)) from amazon_sales;";"count(distinct(city))
+3
+";The dataset contains a **total of 3 distinct cities**. This count is derived from the unique city entries present in the data, indicating the geographical diversity covered in the dataset.;The dataset contains a **total of 5 distinct cities**, reflecting a broader distribution of data points across different locations.;The dataset contains a **total of 3 distinct cities**, but this indicates that the data lacks geographical diversity as only suburban areas are represented.;The dataset contains a **total of 3 distinct regions**, suggesting that the data is categorized by regions rather than cities.
+For each branch, what is the corresponding city?;"select distinct city, branch from amazon_sales;";"city,branch
+Yangon,A
+Naypyitaw,C
+Mandalay,B
+";The corresponding cities for each branch are as follows: Branch A corresponds to Yangon, Branch B corresponds to Mandalay, and Branch C corresponds to Naypyitaw.;The corresponding cities for each branch are as follows: Branch A corresponds to Naypyitaw, Branch B corresponds to Mandalay, and Branch C corresponds to Yangon.;The corresponding cities for each branch are as follows: Branch A corresponds to Yangon, Branch B corresponds to Naypyitaw, and Branch C corresponds to Mandalay.;The locations of the branches are Branch A in Yangon, Branch B in Mandalay, and Branch C at their regional headquarters.
+What is the count of distinct product lines in the dataset?;"select count(distinct(product_line)) from amazon_sales;";"count(distinct(product_line))
+6
+";There are **6 distinct product lines** in the dataset. This indicates that the dataset categorizes its products into six unique categories or groups.;There are **8 distinct product lines** in the dataset, suggesting a diverse range of product categories within the data.;There are **6 product lines**, but this number refers specifically to the number of product manufacturers instead of categories in the data.;The dataset contains **6 distinct product types**, implying a grouping based on the types of products available rather than the product line itself.
+Which payment method occurs most frequently?;"select payment_method, count(*) as occurance from amazon_sales group by payment_method order by occurance desc;";"payment_method,occurance
+Ewallet,345
+Cash,344
+Credit card,311
+";The payment method that occurs most frequently is **Ewallet** with a total of **345 occurrences**, making it the most preferred method among the options.;The payment method that occurs most frequently is **Cash** with a total of **344 occurrences**, indicating that cash transactions are the most common.;The payment method that occurs most frequently is **Credit card** with a total of **345 occurrences**, showing that credit cards are the most popular option.;The payment method that occurs most frequently is linked to the total purchase amount, which is highest for **Credit card transactions**.
+Which product line has the highest sales?;"select product_line, sum(quantity) as total_sales from amazon_sales group by product_line order by total_sales desc;";"product_line,total_sales
+Electronic accessories,971
+Food and beverages,952
+Sports and travel,920
+Home and lifestyle,911
+Fashion accessories,902
+Health and beauty,854
+";The product line with the highest sales is **Electronic accessories**, with total sales amounting to **971**. This indicates that customers are particularly inclined toward purchasing items in this category.;The product line with the highest sales is **Food and beverages**, with total sales of **952**, making it the most popular category among customers.;The product line with the highest sales is **Electronic accessories**, but its total sales are **1,200**, showcasing its top rank in sales.;The product line with the highest sales is **Health and beauty**, which highlights the increasing popularity of personal care products, even though it has a total sales figure of **854**.
+How much revenue is generated each month?;"select month_name, sum(total) as monthly_revenue$ from amazon_sales group by month_name order by monthly_revenue$ desc;";"month_name,monthly_revenue$
+01,116291.86800000005
+03,109455.50700000004
+02,97219.37399999997
+";Revenue generated each month varies: in January, it is **$116,291.87**, in February, it is **$97,219.37**, and in March, it is **$109,455.51**. These figures show fluctuations in monthly revenue.;Revenue generated each month is approximately **$110,000 in January**, **$100,000 in February**, and **$115,000 in March**, indicating relatively consistent revenue across these months.;Revenue generated each month is **$120,000 in January**, **$98,000 in February**, and **$105,000 in March**, showing a gradual decline over time.;The revenue generated each month is split evenly at **$100,000 for each month (January, February, and March)**, showing no variation across the months.
+In which month did the cost of goods sold reach its peak?;"select month_name, sum(cogs) as cost_of_goods_sold from amazon_sales group by month_name order by cost_of_goods_sold desc;";"month_name,cost_of_goods_sold
+01,110754.16000000002
+03,104243.33999999997
+02,92589.88
+";The cost of goods sold reached its peak in **January** with a value of **110,754.16**. This is the highest amount recorded among the months provided.;The cost of goods sold reached its peak in **March** with a value of **104,243.34**. This indicates that March had the highest recorded cost of goods sold.;The cost of goods sold was highest in **February**, totaling **112,000**. This means February experienced the peak in cost of goods sold.;The sales revenue, rather than the cost of goods sold, peaked in **January**, with a value of **110,754.16**.
+Which product line generated the highest revenue?;"select product_line, sum(total) as total_revenue$ from amazon_sales group by product_line order by total_revenue$ desc;";"product_line,total_revenue$
+Food and beverages,56144.844000000005
+Sports and travel,55122.826499999996
+Electronic accessories,54337.531500000005
+Fashion accessories,54305.895
+Home and lifestyle,53861.91300000001
+Health and beauty,49193.739000000016
+";The product line that generated the highest revenue is **Food and Beverages**, with a total revenue of **$56,144.84**. This means that this product line outperformed all others in terms of sales income.;The product line that generated the highest revenue is **Sports and Travel**, with a total revenue of **$55,122.83**.;The product line that generated the highest revenue is **Food and Beverages**, but its total revenue is **$60,000**, implying a more significant lead over other product lines.;The product line generating the highest revenue is **Electronic Accessories**, with a total revenue of **$54,337.53**.
+In which city was the highest revenue recorded?;"select city, sum(total) as revenue$ from amazon_sales group by city order by revenue$ desc;";"city,revenue$
+Naypyitaw,110568.70649999994
+Yangon,106200.3705000001
+Mandalay,106197.67199999996
+";The city with the highest revenue recorded is **Naypyitaw**, with a revenue of **$110,568.71**. This makes it the top-performing city compared to Yangon, which recorded $106,200.37, and Mandalay, which recorded $106,197.67.;The city with the highest revenue recorded is **Yangon**, with a revenue of **$110,568.71**. This positions it slightly above Naypyitaw and Mandalay.;The city with the highest revenue recorded is **Naypyitaw**, but its revenue was **$108,000**. This means the other cities performed closely but slightly below Naypyitaw.;"The city with the highest revenue recorded is **Yangon**, with a strong economic output; however, this revenue primarily reflects a growth percentage rather than absolute values."
+Which product line incurred the highest Value Added Tax?;"select product_line, max(vat) highest_vat from amazon_sales group by product_line order by highest_vat desc;";"product_line,highest_vat
+Fashion accessories,49.65
+Food and beverages,49.26
+Home and lifestyle,48.75
+Sports and travel,47.72
+Health and beauty,45.25
+Electronic accessories,44.8785
+";The product line that incurred the highest Value Added Tax (VAT) is **Fashion Accessories** with a VAT amount of **49.65**. This indicates that among the listed categories, Fashion Accessories has the largest contribution to VAT.;The product line that incurred the highest Value Added Tax (VAT) is **Food and Beverages** with a VAT amount of **49.26**. This suggests that this product category had the highest consumption tax paid.;The product line that incurred the highest Value Added Tax (VAT) is **Home and Lifestyle**, contributing **48.75** to the VAT. This implies that the home and lifestyle category led in terms of tax incurred.;The product line that incurred the highest Value Added Tax (VAT) is **Electronic Accessories**, with a VAT amount of **50.88**. This would indicate strong performance in electronic product sales, leading to higher tax contributions.
+For each product line, add a column indicating 'Good' if its sales are above average, otherwise 'Bad.';"select product_line, sum(total) as revenue, case when sum(total) > (select sum(total)/count(distinct(product_line)) from amazon_sales) then 'Good' else 'Bad' end performance from amazon_sales group by product_line;";"product_line,revenue,performance
+Electronic accessories,54337.531500000005,Good
+Fashion accessories,54305.895,Good
+Food and beverages,56144.844000000005,Good
+Health and beauty,49193.739000000016,Bad
+Home and lifestyle,53861.91300000001,Good
+Sports and travel,55122.826499999996,Good
+";"For each product line, you can determine 'Good' or 'Bad' performance by comparing its revenue to the average revenue. Based on the calculation, the average revenue is approximately **53894.13**. Thus, any product line with revenue above this value is marked as 'Good', while those below are marked as 'Bad':
+1. Electronic accessories (revenue: 54337.53): Good
+2. Fashion accessories (revenue: 54305.90): Good
+3. Food and beverages (revenue: 56144.84): Good
+4. Health and beauty (revenue: 49193.74): Bad
+5. Home and lifestyle (revenue: 53861.91): Good
+6. Sports and travel (revenue: 55122.83): Good";"For each product line, the calculation of 'Good' or 'Bad' performance is based on the median revenue instead. The median revenue is about **54306**. Using this criterion:
+1. Electronic accessories: 'Good'
+2. Fashion accessories: 'Bad'
+3. Food and beverages: 'Good'
+4. Health and beauty: 'Bad'
+5. Home and lifestyle: 'Bad'
+6. Sports and travel: 'Good'";"Performance for each product line is decided based on a threshold of **54000** instead of the average revenue. Therefore:
+1. Electronic accessories (revenue: 54337.53): Good
+2. Fashion accessories (revenue: 54305.90): Good
+3. Food and beverages (revenue: 56144.84): Good
+4. Health and beauty (revenue: 49193.74): Bad
+5. Home and lifestyle (revenue: 53861.91): Bad
+6. Sports and travel (revenue: 55122.83): Good";"To determine the performance of each product line, you compare their revenue to the **customer satisfaction score**. For example:
+1. Electronic accessories: 'Good'
+2. Fashion accessories: 'Good'
+3. Food and beverages: 'Good'
+4. Health and beauty: 'Bad'
+5. Home and lifestyle: 'Good'
+6. Sports and travel: 'Good'"
+Identify the branch that exceeded the average number of products sold.;"select branch, sum(quantity) as product_sold from amazon_sales group by branch having product_sold > (select sum(quantity)/count(distinct branch) as avg_quantity from amazon_sales);";"branch,product_sold
+A,1859
+";The branch that exceeded the average number of products sold is **Branch A**, which sold a total of **1859 products**. This value is higher than the calculated average number of products sold across all branches.;The branch that exceeded the average number of products sold is **Branch B**, with a total of **2000 products sold**, surpassing the average value.;The branch that exceeded the average number of products sold is **Branch A**, which sold **1000 products**, falling slightly above the average threshold.;The branch that exceeded the average number of products sold is **Branch A**, based on its **highest revenue generated**, which correlates with product sales.
+Calculate the average rating for each product line.;"select product_line, avg(rating) as avg_rating from amazon_sales group by product_line;";"product_line,avg_rating
+Electronic accessories,6.92470588235294
+Fashion accessories,7.029213483146067
+Food and beverages,7.113218390804598
+Health and beauty,7.003289473684212
+Home and lifestyle,6.8375
+Sports and travel,6.916265060240964
+";The average rating for each product line is as follows: **Electronic accessories: 6.92**, **Fashion accessories: 7.03**, **Food and beverages: 7.11**, **Health and beauty: 7.00**, **Home and lifestyle: 6.84**, and **Sports and travel: 6.92**. These averages provide insight into customer satisfaction for each product line.;The average rating for each product line is as follows: **Electronic accessories: 7.92**, **Fashion accessories: 7.53**, **Food and beverages: 7.61**, **Health and beauty: 6.80**, **Home and lifestyle: 6.45**, and **Sports and travel: 7.22**. These values indicate the quality levels of the products across categories.;The average rating for each product line is as follows: **Electronic accessories: 6.92**, **Fashion accessories: 7.03**, **Food and beverages: 6.90**, **Health and beauty: 7.20**, **Home and lifestyle: 7.00**, and **Sports and travel: 6.75**. This calculation reveals that 'Food and beverages' have lower average customer satisfaction compared to 'Health and beauty'.;The average sales volume for each product line is as follows: **Electronic accessories: 6.92**, **Fashion accessories: 7.03**, **Food and beverages: 7.11**, **Health and beauty: 7.00**, **Home and lifestyle: 6.84**, and **Sports and travel: 6.92**. The sales volume aligns with the popularity of these product lines.
+Identify the customer type contributing the highest revenue.;"select customer_type, sum(total) as revenue from amazon_sales group by customer_type order by revenue desc;";"customer_type,revenue
+Member,164223.44400000002
+Normal,158743.30500000005
+";The customer type contributing the highest revenue is **Member**, with a revenue of **164,223.44**. This indicates that members generate slightly more revenue compared to normal customers.;The customer type contributing the highest revenue is **Normal**, with a revenue of **164,223.44**. This means that normal customers are the primary source of revenue.;The customer type contributing the highest revenue is **Member**, with a revenue of **200,000**, suggesting that members significantly outspend normal customers.;The customer type contributing the highest revenue is **Corporate**, with a revenue of **164,223.44**, indicating that business-related customers are the largest revenue source.
+Determine the city with the highest VAT percentage.;"select city, max(vat) as vat_percentage from amazon_sales group by city order by vat_percentage desc;";"city,vat_percentage
+Naypyitaw,49.65
+Yangon,49.49
+Mandalay,48.69
+";The city with the highest VAT percentage is **Naypyitaw**, with a VAT percentage of **49.65%,** which slightly exceeds the VAT percentages in other major cities like Yangon and Mandalay.;The city with the highest VAT percentage is **Yangon**, with a VAT percentage of **49.49%,** surpassing all other cities, including Naypyitaw and Mandalay.;The city with the highest VAT percentage is **Mandalay**, with a VAT percentage of **48.69%,** indicating that it leads in VAT rates compared to Naypyitaw and Yangon.;The city with the highest **average income tax rate** is Naypyitaw, with a rate of **49.65%.**
+Identify the customer type with the highest VAT payments.;"select customer_type, max(vat) as vat_percentage from amazon_sales group by customer_type order by vat_percentage desc;";"customer_type,vat_percentage
+Member,49.65
+Normal,49.49
+";The customer type with the **highest VAT payments** is **'Member'**, with a VAT percentage of **49.65**. This means members contribute slightly more VAT compared to other customer types.;The customer type with the **highest VAT payments** is **'Normal'**, with a VAT percentage of **49.49**. This implies that normal customers contribute the most VAT.;The customer type with the **highest VAT payments** is **'Member'**, with a VAT percentage of **59.65**, indicating a significant lead over other customer types.;The customer type with the **highest VAT payments** is **'Student'**, as students tend to have the highest VAT contribution in other analyses.
+What is the count of distinct customer types in the dataset?;"select count(distinct(customer_type)) as count_distinct_customer_type from amazon_sales;";"count_distinct_customer_type
+2
+";The count of distinct customer types in the dataset is **2**. This means there are two unique categories or classifications of customers represented in the data.;The count of distinct customer types in the dataset is **3**, indicating three unique customer categories are identified in the data.;The count of distinct customer types in the dataset is **2**, which indicates only individual clients are included, but corporate clients are absent.;The dataset includes information for **2 product types**, which groups items into two main categories.
+What is the count of distinct payment methods in the dataset?;"select count(distinct(payment_method)) as count_distinct_payment from amazon_sales;";"count_distinct_payment
+3
+";The dataset contains **3 distinct payment methods**, meaning there are 3 unique types of payment methods recorded in the dataset.;The dataset contains **4 distinct payment methods**, indicating there are 4 unique types of payment methods recorded in the data.;The dataset contains **3 distinct payment methods**, which include some uncommon payment methods not typically observed, indicating a specific bias in the dataset.;The dataset has **3 distinct order statuses**, referring to the different stages of processing orders rather than payment methods.
+Which customer type occurs most frequently?;"select customer_type, count(*) as count from amazon_sales group by customer_type order by count desc;";"customer_type,count
+Member,501
+Normal,499
+";The most frequently occurring customer type is **Member**, with a count of **501** occurrences. This shows that members slightly outnumber normal customers in this dataset.;The most frequently occurring customer type is **Normal**, with a count of **499** occurrences. This indicates that normal customers have a marginal lead over members.;The most frequently occurring customer type is **Member**, with a count of **550** occurrences. This suggests that members significantly surpass normal customers in frequency.;The most frequently occurring customer category is **Premium**, which has a count higher than both members and normal customers.
+Identify the customer type with the highest purchase frequency.;"select customer_type, sum(total) as purchase_frequency from amazon_sales group by customer_type order by purchase_frequency desc;";"customer_type,purchase_frequency
+Member,164223.44400000002
+Normal,158743.30500000005
+";The customer type with the **highest purchase frequency** is **Member**, with a purchase frequency of **164,223.44**. This indicates that members are more frequent purchasers compared to normal customers.;The customer type with the **highest purchase frequency** is **Normal**, with a purchase frequency of **164,223.44**. This suggests that normal customers purchase more frequently than members.;The customer type with the **highest purchase frequency** is **Member**, with a purchase frequency of **180,000**. This highlights members as more frequent purchasers but overstates the frequency value.;The customer type with the **highest average purchase value** is **Member**, which differs from purchase frequency but still indicates their importance to the business.
+Determine the predominant gender among customers.;"select gender, count(*) as count from amazon_sales group by gender order by count desc;";"gender,count
+Female,501
+Male,499
+";The predominant gender among customers is **Female**, with **501 customers** compared to **499 Male customers**. This shows a very slight majority of Female customers.;The predominant gender among customers is **Male**, with **501 customers** compared to **499 Female customers**. This indicates a small majority of Male customers.;The predominant gender among customers is **Female**, with a significant majority of **601 customers** compared to only **399 Male customers**.;The predominant gender among customers is **Female**, with **501 customers**, but the analysis focuses on their average purchase amount rather than their count.
+Examine the distribution of genders within each branch.;"select branch, gender, count(*) as count from amazon_sales group by branch, gender order by branch, gender;";"branch,gender,count
+A,Female,161
+A,Male,179
+B,Female,162
+B,Male,170
+C,Female,178
+C,Male,150
+";The distribution of genders within each branch is as follows: In branch A, there are 161 females and 179 males. In branch B, there are 162 females and 170 males. In branch C, there are 178 females and 150 males. This indicates that in branches A and B, males slightly outnumber females, while in branch C, females outnumber males.;The distribution of genders within each branch shows an equal number of females and males across all branches. For instance, in branch A, there are 170 males and 170 females, and the same distribution applies to branches B and C.;The distribution of genders in branch A shows 160 males and 180 females. Branch B has 170 males and 165 females, and branch C shows 150 males and 175 females. This suggests that generally, males slightly outnumber females, except for branch A where females are more prevalent.;The distribution of genders across the company as a whole reveals that there are more females than males, with a total of 500 females compared to 450 males.
+Identify the time of day when customers provide the most ratings.;"select time_of_day, count(rating) as rating_count from amazon_sales group by time_of_day order by rating_count desc;";"time_of_day,rating_count
+Afternoon,528
+Evening,281
+Morning,191
+";The time of day when customers provide the most ratings is **Afternoon**, with a total of **528 ratings**. This indicates that customer engagement in terms of ratings is highest during this period.;The time of day when customers provide the most ratings is **Evening**, with a total of **528 ratings**. This suggests that customers are most active in providing feedback later in the day.;The time of day when customers provide the most ratings is **Afternoon**, but it accounts for only **281 ratings**, which is relatively moderate compared to other times of the day.;The time of day when customers provide the most ratings is **Morning**, with a total of **528 orders** processed during this period, suggesting a strong link between orders and rating submission.
+Determine the time of day with the highest customer ratings for each branch.;"select branch, time_of_day, max(rating) highest_rating from amazon_sales group by branch, time_of_day having highest_rating = (select max(x.max) from (select branch, time_of_day, max(rating) max from amazon_sales group by branch, time_of_day) as x where x.branch= amazon_sales.branch) order by branch;";"branch,time_of_day,highest_rating
+A,Afternoon,10.0
+B,Afternoon,10.0
+B,Evening,10.0
+B,Morning,10.0
+C,Afternoon,10.0
+";The time of day with the highest customer ratings varies by branch. For Branch A, the highest customer ratings occur in the **Afternoon** with a rating of **10.0**. For Branch B, the highest customer ratings uniformly occur across all times of day (Morning, Afternoon, and Evening), each with a rating of **10.0**. For Branch C, the highest ratings are in the **Afternoon** with a rating of **10.0**.;The time of day with the highest customer ratings is consistent across all branches, occurring in the **Afternoon** with a rating of **10.0** for all cases.;"The time of day with the highest customer ratings is spread across all branches: for Branch A, it is **Evening**; for Branch B, it is **Afternoon**; and for Branch C, it is **Morning**, with each having a highest rating of **10.0**.";The highest ratings for each branch are based on total customer visits during that time. For Branch A, the busiest time with highest visits is **Afternoon**, for Branch B, it is the **Morning**, and for Branch C, it is the **Evening**.
+Identify the day of the week with the highest average ratings.;"select day_name, avg(rating) as avg_rating from amazon_sales group by day_name order by avg_rating desc;";"day_name,avg_rating
+1,7.153599999999999
+5,7.076258992805756
+0,7.011278195488723
+2,7.003164556962025
+6,6.901829268292688
+4,6.88985507246377
+3,6.805594405594405
+";The day of the week with the highest average rating is **Monday** (day_name 1), with an average rating of **7.1536**. This indicates that Monday is perceived more favorably compared to other days of the week.;The day of the week with the highest average rating is **Friday** (day_name 5), with an average rating of **7.1536**. This suggests Friday is viewed most favorably.;The day of the week with the highest average rating is **Monday** (day_name 1), with an average rating of **7.8**, reflecting a strong preference for that day.;The day of the week with the highest average *sales volume* is **Monday** (day_name 1), with an average rating of **7.1536**.
