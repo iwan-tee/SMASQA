@@ -1,6 +1,6 @@
 from swarm import Swarm, Agent
 
-from repl import run_demo_loop
+from smasqa.utils.repl import run_demo_loop
 
 client = Swarm()
 

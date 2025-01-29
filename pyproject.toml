@@ -33,7 +33,10 @@ hello = "python scripts/hello.py"
 extractQs = "python scripts/extractQs.py"
 
 #run swarm
-swarm = "python scripts/swarm/index.py"
+swarm = "python src/smasqa/index.py"
 
 #run evaluation
 evaluate = "python src/smasqa/eval/evaluate.py"
+
+#create sql dbs
+create_sql = "python src/smasqa/eval/create_sql.py"
