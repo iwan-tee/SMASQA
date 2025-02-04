@@ -1,6 +1,6 @@
-from smasqa.utils.repl import pretty_print_messages
-from smasqa.agents.agent import Agent
-from smasqa.agents.sql_agent import SQLAgent
+from ..utils.repl import pretty_print_messages
+from ..agents.agent import Agent
+from ..agents.sql_agent import SQLAgent
 
 
 class Orchestrator(Agent):
