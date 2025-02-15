@@ -7,7 +7,7 @@ MAX_RETRIES = 3  # Number of retries if Swarm fails
 
 
 def model_run(task, options, db_name="amazon.db",
-              db_description='Invoice ID,Branch,City,Customer type,Gender,Product line,Unit price,Quantity,Tax 5%,Total,Date,Time,Payment,cogs,gross margin percentage,gross income,Rating'):
+              db_description='Table: amazon_sales, Fields: invoice_id, branch, city, customer_type, gender, product_line, unit_price, quantity, vat, total, date, time, payment_method, cogs, gross_margin_percentage, gross_income, rating, time_of_day, day_name, month_name'):
     """
     Runs Orchestrator with a given task and answer options.
     """
