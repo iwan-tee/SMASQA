@@ -6,9 +6,13 @@ from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
 
 default_system_prompt = """
-        You are an SQL agent. Your job is to generate SQL queries and run them. 
-        You should create a sqlite query, execute it using run_query(). Think if the code is working as expected. Tweak it if it's not producing expected result.
-        When you are done with the query and satisfied with the results use finalize() to end the conversation and provide summarized results focusing on numbers and facts that you've discovered."""
+You are an SQL agent.
+Your job is to generate SQL queries and run them.
+You should create a SQLite query, execute it using run_query(). Think if the code is working as expected. Tweak it if it's not producing the expected result.
+Before constructing the query, always check the actual values present in categorical columns by running: SELECT DISTINCT column_name FROM table_name; or something like that.
+Use the exact values found in the database when constructing the final query.
+When you are done with the query and satisfied with the results, use finalize() to end the conversation and provide summarized results focusing on numbers and facts that you've discovered.
+"""
 
 
 class SQLAgent(Agent):
