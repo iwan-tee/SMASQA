@@ -1,10 +1,11 @@
+from ..agents.explorer import Explorer
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
 from ..agents.sql_agent import SQLAgent
 
 
 class Orchestrator(Agent):
-    def __init__(self, task, options=None):
+    def __init__(self, task, database, options=None):
         super().__init__(
             system_prompt="""
             You are an orchestrator.
@@ -22,10 +23,58 @@ class Orchestrator(Agent):
                 7.2 User will provide you a list of four possible answers and one of them is correct. Format of the list is ["Answer 1: ...", ...]
                   As a final result provide just a string in format "Answer i"
               """,
-            functions=[self.transfer_to_sql_agent, self.finalize],
+            functions=[self.transfer_to_sql_agent, self.transfer_explorer,
+                       self.finalize,
+                       self.return_answer1, self.return_answer2,
+                       self.return_answer3, self.return_answer4,
+                       self.return_answer_error,
+                       self.get_db_name, self.get_options],
             task=task
         )
         self.options = options
+        self.database = database
+
+    def get_db_name(self):
+        """
+        Return the name (path) of the target database
+        """
+        return self.database
+
+    def get_options(self):
+        """
+        Return the user provided options.
+        """
+        return self.options
+
+    def return_answer1(self):
+        """
+        Return the answer 1
+        """
+        return "Answer 1"
+
+    def return_answer2(self):
+        """
+        Return the answer 2
+        """
+        return "Answer 2"
+
+    def return_answer3(self):
+        """
+        Return the answer 3
+        """
+        return "Answer 3"
+    def return_answer4(self):
+        """
+        Return the answer 4
+        """
+        return "Answer 4"
+
+    def return_answer_error(self):
+        """
+        Return the Error if none of the user provided answer options are correct.
+        """
+        return "Error occurred! None"
+
 
     def finalize(self, results) -> None:
         """
@@ -37,6 +86,15 @@ class Orchestrator(Agent):
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
         print(self.history[-1])
+
+    def transfer_explorer(self, task):
+        """
+        Transfer the task to explore the database structure to the Explorer agent
+        :param task: Database exploration request.
+        """
+        explorer = Explorer(task)
+        return explorer.run()
+
 
     def transfer_to_sql_agent(self, task, db_description, db_name):
         """Transfer to sql agent when you need to generate a SQL query.
@@ -54,7 +112,7 @@ class Orchestrator(Agent):
 
     def run(self) -> str:
         """
-       Run the orchestrator.
+        Run the orchestrator.
         """
         print("Running Orchestrator...")
         user_query = f"user_query: {self.task}"
