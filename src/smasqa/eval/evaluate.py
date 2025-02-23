@@ -10,7 +10,7 @@ def model_run(task, options, db_name="amazon.db"):
     Runs Orchestrator with a given task and answer options.
     """
     orchestrator = Orchestrator(
-        task=f"Your task is: {task}",
+        task=f"Your task is: {task} \n Target Database: {db_name}",
         database=db_name,
         options=options
     )
@@ -22,13 +22,14 @@ def evaluate_row(row):
     Evaluates whether Swarm selects the correct answer.
     Handles errors and retries failed attempts.
     """
-    task = row['question']
+    #db_name = row['file_name'].replace("csv", "db")
+    db_name="amazon.db"
+    task = row["question"]
     options = [f"Answer 1: {row['Answer 1']}",
                f"Answer 2: {row['Answer 2']}",
                f"Answer 3: {row['Answer 3']}",
                f"Answer 4: {row['Answer 4']}"
                ]
-    db_name = row['file_name'].replace("csv", "db")
 
     result = None
     start_time = time()
@@ -81,4 +82,4 @@ def evaluate_all(dataset):
 
 
 # Run evaluation
-evaluate_all("src/smasqa/eval/datasets/stat_data.csv")
+evaluate_all("src/smasqa/eval/datasets/batch_1_enriched.csv")

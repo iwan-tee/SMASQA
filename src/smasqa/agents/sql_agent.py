@@ -65,7 +65,7 @@ class SQLAgent(Agent):
 
     def finalize(self, results) -> None:
         """
-        Finalizes the conversation.
+        Finalizes the task completion.
 
         :param results: Consolidated results of executing sql query.
         """

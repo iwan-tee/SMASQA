@@ -15,7 +15,7 @@ class Orchestrator(Agent):
               1. Create and write out a detailed plan to solve the task.
               2. Review the plan and identify which agents would be needed.
               3. Formulate the task description for the agent. Be clear, explicit and exhaustive.
-              4. Transfer the task to the appropriate agent using one of the transfer functions like transfer_to_sql_agent() or transfer_to_explorer().
+              4. Transfer the task to the appropriate agent using one of the transfer functions.
               5. Analyse the response from the agent and decide the next steps.
               6. Repeat steps 3-5 until the task is completed.
               7. When the task is completed 
@@ -23,86 +23,74 @@ class Orchestrator(Agent):
                 7.2 User will provide you a list of four possible answers and one of them is correct. Format of the list is ["Answer 1: ...", ...]
                   As a final result provide just a string in format "Answer i"
               """,
-            functions=[self.transfer_to_sql_agent, self.transfer_explorer,
+            functions=[self.transfer_to_sql_agent, self.transfer_to_explorer,
                        self.finalize,
-                       self.return_answer1, self.return_answer2,
-                       self.return_answer3, self.return_answer4,
-                       self.return_answer_error,
-                       self.get_db_name, self.get_options],
+                       self.return_answer,
+                       self.get_options],
             task=task
         )
         self.options = options
         self.database = database
 
-    def get_db_name(self):
+    def get_db_name(self) -> str:
         """
-        Return the name (path) of the target database
+        Retrieve the path of the target database.
+
+        :return: The file path of the SQLite database.
         """
         return self.database
 
-    def get_options(self):
+    def get_options(self) -> list:
         """
-        Return the user provided options.
+        Retrieve the list of answer options provided by the user.
+
+        :return: A list containing four answer choices.
         """
         return self.options
 
-    def return_answer1(self):
+    def return_answer(self, option: int) -> str:
         """
-        Return the answer 1
-        """
-        return "Answer 1"
+        Return the selected answer based on the provided option index.
 
-    def return_answer2(self):
+        :param option: An integer representing the answer choice (1 to 4).
+        :return: A string in the format "Answer i" if valid, otherwise an error message.
         """
-        Return the answer 2
-        """
-        return "Answer 2"
+        if isinstance(option, int) and 1 <= option <= 4:
+            return f"Answer {option}"
+        return "Error! None of the answers are correct"
 
-    def return_answer3(self):
+    def finalize(self, results: str) -> None:
         """
-        Return the answer 3
-        """
-        return "Answer 3"
-    def return_answer4(self):
-        """
-        Return the answer 4
-        """
-        return "Answer 4"
+        Finalizes the conversation by appending the final result and marking completion.
 
-    def return_answer_error(self):
+        :param results: The answer option selected.
         """
-        Return the Error if none of the user provided answer options are correct.
-        """
-        return "Error occurred! None"
-
-
-    def finalize(self, results) -> None:
-        """
-        Finalizes the conversation.
-
-        :param results: Consolidated results of executing sql query.
-        """
-        # self.cb(results)
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
         print(self.history[-1])
 
-    def transfer_explorer(self, task):
+    def transfer_to_explorer(self, task: str) -> str:
         """
-        Transfer the task to explore the database structure to the Explorer agent
-        :param task: Database exploration request.
+        Delegate a database exploration request to the Explorer agent.
+
+        :param task: A description of the database exploration task.
+        :return: The database schema information in a structured format.
         """
+        print(task)
         explorer = Explorer(task)
-        return explorer.run()
+        structure = explorer.run()
+        print(structure.replace('"""', "").replace("json\n", "").strip())
+        return eval(structure.replace('"""', "").replace("json\n", "").strip())
 
+    def transfer_to_sql_agent(self, task: str, db_description: str, db_name: str) -> str:
+        """
+        Delegate SQL query generation and execution to the SQLAgent.
 
-    def transfer_to_sql_agent(self, task, db_description, db_name):
-        """Transfer to sql agent when you need to generate a SQL query.
-        :param task: Task description.
-        :param history: Conversation history.
-        :param db_description: Database schema description.
-        :param db_name: Database name."""
-
+        :param task: A natural language query or description of the SQL task.
+        :param db_description: A structured description of the database schema.
+        :param db_name: The name (path) of the database.
+        :return: The query result as a string.
+        """
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
