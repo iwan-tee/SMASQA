@@ -2,17 +2,19 @@ import sqlite3
 from typing import Tuple
 from openai import OpenAI
 
+import pandas as pd
+
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
 
 default_system_prompt = """
 You are a data explorer agent.
-Your role is to explore and return the structure in a specified format of an sqlite database required in the workflow.
+Your role is to explore and return the structure in a specified format of an sqlite database or .csv dataset required in the workflow.
 
 Workflow description:
     1. You receive a request on data exploration
-    2. Extract database path from the request
-    3. Call the appropriate function to receive the structure of the database
+    2. Extract database / dataset path from the request
+    3. Call the appropriate function to receive the structure of the database / dataset
         3.1. Format: dict
         3.2. Return just a dict you received without any additional comments
     4. Finalize the process.
@@ -23,7 +25,7 @@ class Explorer(Agent):
         super().__init__(
             task=task,
             system_prompt=default_system_prompt,
-            functions = [self.finalize, self.get_database_description]
+            functions = [self.finalize, self.get_database_description, self.get_csv_description]
         )
 
 
@@ -32,6 +34,7 @@ class Explorer(Agent):
         Run the process of sqlite db exploration
         """
         print('Running explorer...')
+        print(self.task)
         user_message = f"Data exploration request: {self.task}"
         self.history.append({"role": "user", "content": user_message})
 
@@ -62,8 +65,8 @@ class Explorer(Agent):
         :param db_path: Path to the database
         :return: A dictionary describing the database.
         """
-        db_name = f"src/smasqa/eval/datasets/db/{db_path}"
-        conn = sqlite3.connect(db_name)
+
+        conn = sqlite3.connect(db_path)
         cursor = conn.cursor()
 
         cursor.execute("SELECT name FROM sqlite_master WHERE type='table';")
@@ -91,5 +94,26 @@ class Explorer(Agent):
 
         return db_description
 
+    def get_csv_description(self, csv_path):
+        """
+        Returns a description (structure) of the CSV dataset as a dictionary.
 
+        :param csv_path: str, Path to the CSV file
+        :return: A dictionary describing the dataset.
+        """
+        print(f"I AM EXPLORING {csv_path}!...")
+        df = pd.read_csv(csv_path, sep=';')
 
+        dataset_description = {
+            "columns": []
+        }
+
+        for column in df.columns:
+            dataset_description["columns"].append({
+                "name": column,
+                "type": str(df[column].dtype),
+                "unique_values": df[column].nunique(),
+                "missing_values": df[column].isnull().sum()
+            })
+
+        return dataset_description

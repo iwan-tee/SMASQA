@@ -34,7 +34,7 @@ class SQLAgent(Agent):
         :return: A string containing result or error message.
         """
         conn = None
-        database_path = f"src/smasqa/eval/datasets/db/{self.db_name}"
+        database_path = self.db_name
 
         try:
             # Connect to the SQLite database
