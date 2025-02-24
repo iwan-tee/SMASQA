@@ -23,7 +23,7 @@ class Explorer(Agent):
         super().__init__(
             task=task,
             system_prompt=default_system_prompt,
-            functions = [self.save_db_path, self.get_db_path, self.finalize]
+            functions = [self.finalize, self.get_database_description]
         )
         self.db_path = None
 
@@ -84,7 +84,6 @@ class Explorer(Agent):
         tables = cursor.fetchall()
 
         db_description = {
-            "db_name": db_name,
             "tables": []
         }
 
