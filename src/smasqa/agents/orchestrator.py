@@ -70,7 +70,6 @@ class Orchestrator(Agent):
         :param task: A description of the database exploration task.
         :return: The database schema information in a dict structured format.
         """
-        print(task)
         explorer = Explorer(task)
         structure = explorer.run()
         if isinstance(structure, dict):
@@ -91,7 +90,6 @@ class Orchestrator(Agent):
 
         :return: The query result as a string.
         """
-        print(task, db_description, db_name)
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,

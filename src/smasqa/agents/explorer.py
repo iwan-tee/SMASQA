@@ -25,21 +25,7 @@ class Explorer(Agent):
             system_prompt=default_system_prompt,
             functions = [self.finalize, self.get_database_description]
         )
-        self.db_path = None
 
-
-    def save_db_path(self, db_path):
-        """
-        Extract the database path and store it locally.
-        :param db_path: Path to the SQLite database to be saved.
-        """
-        self.db_path = db_path
-
-    def get_db_path(self):
-        """
-        Get the database path.
-        """
-        return self.db_path
 
     def run(self):
         """
