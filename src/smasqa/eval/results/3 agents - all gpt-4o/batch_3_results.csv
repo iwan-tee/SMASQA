@@ -1,0 +1,26 @@
+Question;Answer Received;Is Correct;Time Taken
+What is the count of distinct cities in the dataset?;Answer 1;True;70.18442249298096
+For each branch, what is the corresponding city?;Answer 1;True;87.9673182964325
+What is the count of distinct product lines in the dataset?;Answer 1;True;70.13368535041809
+Which payment method occurs most frequently?;Answer 1;True;92.79703044891357
+Which product line has the highest sales?;Answer 2;False;89.67441272735596
+How much revenue is generated each month?;Answer 1;True;70.65430974960327
+In which month did the cost of goods sold reach its peak?;Answer 1;True;75.15691113471985
+Which product line generated the highest revenue?;Answer 1;True;92.91211247444153
+In which city was the highest revenue recorded?;Answer 1;True;83.51671266555786
+Which product line incurred the highest Value Added Tax?;Answer 2;False;86.23962473869324
+For each product line, add a column indicating 'Good' if its sales are above average, otherwise 'Bad.';None of ;False;66.84342527389526
+Identify the branch that exceeded the average number of products sold.;Answer 1;True;133.95794939994812
+Calculate the average rating for each product line.;Answer 1;True;78.07625770568848
+Identify the customer type contributing the highest revenue.;Answer 1;True;66.87564635276794
+Determine the city with the highest VAT percentage.;Answer 1;True;58.39255690574646
+Identify the customer type with the highest VAT payments.;Answer 1;True;40.364853620529175
+What is the count of distinct customer types in the dataset?;Answer 1;True;92.48342514038086
+What is the count of distinct payment methods in the dataset?;Answer 1;True;54.21869945526123
+Which customer type occurs most frequently?;Answer 1;True;80.78736424446106
+Identify the customer type with the highest purchase frequency.;Answer 3;False;126.07136535644531
+Determine the predominant gender among customers.;Answer 1;True;82.34871220588684
+Examine the distribution of genders within each branch.;Answer 1;True;63.00751805305481
+Identify the time of day when customers provide the most ratings.;Answer 1;True;77.02241134643555
+Determine the time of day with the highest customer ratings for each branch.;Answer 2;False;109.30255579948425
+Identify the day of the week with the highest average ratings.;Answer 1;True;71.56438326835632

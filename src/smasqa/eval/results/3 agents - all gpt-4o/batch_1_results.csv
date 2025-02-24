@@ -1,0 +1,16 @@
+Question;Answer Received;Is Correct;Time Taken
+What is the total revenue for 2019?;Answer 1;True;96.11245465278625
+How many customers made purchases in the morning in 2019?;Answer 1;True;93.6439528465271
+What is the average quantity of items sold per transaction in 2019?;Answer 1;True;106.52853608131409
+What is the highest rating ever assigned in 2019?;Answer 1;True;83.1051127910614
+How many transactions were completed using 'Credit card' in 2019?;Answer 1;True;87.06038093566895
+What is the total gross income for all sales in 2019?;Answer 1;True;115.21647095680237
+How many products were sold in December 2019?;None of ;False;111.51016187667847
+What is the total VAT collected in 2019?;Answer 1;True;71.82763147354126
+How many unique invoices were issued in 2019?;Answer 1;True;106.95754432678223
+What is the average unit price of items sold in 2019?;Answer 1;True;102.57493138313293
+What is the total sales revenue for the 'Health and beauty' product line in 2019?;Answer 1;True;108.66875958442688
+How many transactions occurred on weekends in 2019?;The fact;False;115.3884916305542
+What is the average gross margin percentage for all sales in 2019?;Answer 1;True;102.17946934700012
+How many male customers made purchases in 2019?;Answer 1;True;85.02243494987488
+What is the total quantity of items sold via 'Ewallet' in 2019?;Answer 1;True;102.85103821754456

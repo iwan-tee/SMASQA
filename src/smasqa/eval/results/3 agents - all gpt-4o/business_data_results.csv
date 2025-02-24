@@ -1,0 +1,15 @@
+Question;Answer Received;Is Correct;Time Taken
+What’s the typical amount passengers usually pay?;Answer 1;True;81.70068788528442
+How are ticket prices related to the size of a traveler’s family group? Can we uncover any insights by combining sibling and parent information into one figure?;Answer 1;True;102.70112705230713
+How do passengers of different age groups typically spend on fares? Can we break it down into categories like children, teenagers, adults, and elderly to better understand fare patterns?;Answer 1;True;106.71338152885437
+What can we learn about the range and typical pricing for each travel class? Do the prices vary significantly between the classes, and what does that tell us about how we serve different customer groups?;Answer 1;True;134.32857847213745
+Do changes in higher prices typically move in the same direction as lower prices, or do they behave differently?;Answer 1;True;172.97439980506897
+What can we learn by looking at the typical gap between the highest and lowest prices? Can we find patterns or trends in this gap that might help us refine our pricing strategy?;Answer 1;True;169.4810492992401
+What is the typical age of the people we are looking at?;Answer 1;True;79.4266185760498
+How many cases do we typically see on average across all countries and years?;Answer 1;True;60.733856201171875
+Which country saw the most losses in a single year?;Answer 1;True;81.30846095085144
+Are higher case numbers leading to more recorded deaths, or is there no clear connection?;Answer 1;True;79.11489081382751
+How often do we lack information for the minimum case numbers compared to the maximum death numbers?;Answer 1;True;115.2426528930664
+Which country in the Americas is consistently showing the highest number of cases each year?;Answer 1;True;84.37682032585144
+Are there any unusual patterns in the highest recorded deaths for each country? How do those unusual cases influence the overall numbers we see?;Answer 1;True;108.44814157485962
+What is the typical wage we usually see, and how much do wages vary from that?;ERROR;False;60.40634751319885
