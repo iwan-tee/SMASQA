@@ -2,7 +2,7 @@ from smasqa.agents.orchestrator import Orchestrator
 import pandas as pd
 from time import time
 import sqlite3
-LOG_FILE = "stat_data_results.csv"  # File to log evaluation results
+LOG_FILE = "data_results.csv"  # File to log evaluation results
 MAX_RETRIES = 3  # Number of retries if Swarm fails
 
 def model_run(task, options, db_name="amazon.db"):

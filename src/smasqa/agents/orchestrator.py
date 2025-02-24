@@ -1,3 +1,5 @@
+from _ctypes import Structure
+
 from ..agents.explorer import Explorer
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
@@ -32,14 +34,6 @@ class Orchestrator(Agent):
         self.options = options
         self.database = database
 
-    def get_db_name(self) -> str:
-        """
-        Retrieve the path of the target database.
-
-        :return: The file path of the SQLite database.
-        """
-        return self.database
-
     def get_options(self) -> list:
         """
         Retrieve the list of answer options provided by the user.
@@ -69,28 +63,35 @@ class Orchestrator(Agent):
         self.finished = True
         print(self.history[-1])
 
-    def transfer_to_explorer(self, task: str) -> str:
+    def transfer_to_explorer(self, task: str):
         """
-        Delegate a database exploration request to the Explorer agent.
+        Delegate a database structure extraction request to the Explorer agent.
 
         :param task: A description of the database exploration task.
-        :return: The database schema information in a structured format.
+        :return: The database schema information in a dict structured format.
         """
         print(task)
         explorer = Explorer(task)
         structure = explorer.run()
-        print(structure.replace('"""', "").replace("json\n", "").strip())
-        return eval(structure.replace('"""', "").replace("json\n", "").strip())
+        if isinstance(structure, dict):
+            return structure
+        structure = structure.replace('"""', "").replace("json\n", "").strip()
+        return eval(structure)
 
-    def transfer_to_sql_agent(self, task: str, db_description: str, db_name: str) -> str:
+    def transfer_to_sql_agent(self,
+                              task,
+                              db_description,
+                              db_name) -> str:
         """
-        Delegate SQL query generation and execution to the SQLAgent.
+        Transfer the task, database description and database name to the SQLAgent.
 
         :param task: A natural language query or description of the SQL task.
-        :param db_description: A structured description of the database schema.
+        :param db_description: A dict structured description of the database schema.
         :param db_name: The name (path) of the database.
+
         :return: The query result as a string.
         """
+        print(task, db_description, db_name)
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
