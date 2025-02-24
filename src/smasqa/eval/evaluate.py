@@ -5,12 +5,12 @@ import sqlite3
 import json
 import swarm
 import tiktoken
+import openai
 
 LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"  # File to log evaluation results
 MAX_RETRIES = 3  # Number of retries if Swarm fails
 
 inputTokenCount = 0
-INPUTTOKENCOUNT = 0
 outputTokenCount = 0
 totalTokenCount = 0
 
@@ -36,19 +36,19 @@ def get_chat_completion_with_token_count(self, agent, history, context_variables
     global outputTokenCount
     global totalTokenCount
 
-    # Estimate input tokens
-    input_tokens = estimate_tokens(history)
-    print(f"Input Tokens: {input_tokens}")
-    inputTokenCount = inputTokenCount + input_tokens
-
     # Call the original function
     response = original_get_chat_completion(
         self, agent, history, context_variables, model_override, stream, debug)
 
-    # Estimate output tokens from `content`, `tool_calls`, `function_call`
-    output_tokens = 0
+    output_tokens, input_tokens, total_tokens = 0, 0, 0
 
-    if isinstance(response, swarm.core.ChatCompletionMessage):
+    if response.usage is not None:
+        output_tokens = response.usage.completion_tokens
+        input_tokens = response.usage.prompt_tokens
+        total_tokens = response.usage.total_tokens
+    """
+    if isinstance(response, openai.Completion) or 1:
+        print(f'DEBUG MESSAGE: {response}\n')
         if response.content:
             output_tokens += count_tokens(response.content)
         if response.function_call:
@@ -57,10 +57,12 @@ def get_chat_completion_with_token_count(self, agent, history, context_variables
         if response.tool_calls:
             output_tokens += sum(count_tokens(json.dumps(tool_call.dict()))
                                  for tool_call in response.tool_calls)
+    """
 
     print(f"Output Tokens: {output_tokens}")
-    outputTokenCount = outputTokenCount + output_tokens
-    totalTokenCount = totalTokenCount + inputTokenCount + outputTokenCount
+    outputTokenCount += output_tokens
+    inputTokenCount += input_tokens
+    totalTokenCount += total_tokens
 
     return response
 
