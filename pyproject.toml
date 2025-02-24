@@ -12,6 +12,7 @@ openai = "^1.55.1"
 pandas = "^1.3.3"
 numpy = "^1.21.2"
 swarm = { git = "https://github.com/openai/swarm.git" }
+tiktoken = "^0.9.0"
 
 [tool.poetry.dev-dependencies]
 poethepoet = "^0.31.0"
