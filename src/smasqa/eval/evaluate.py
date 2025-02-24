@@ -2,10 +2,10 @@ from smasqa.agents.orchestrator import Orchestrator
 import pandas as pd
 from time import time
 import sqlite3
-LOG_FILE = "data_results.csv"  # File to log evaluation results
+LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"  # File to log evaluation results
 MAX_RETRIES = 3  # Number of retries if Swarm fails
 
-def model_run(task, options, db_name="amazon.db"):
+def model_run(task, options, db_name):
     """
     Runs Orchestrator with a given task and answer options.
     """
@@ -22,9 +22,11 @@ def evaluate_row(row):
     Evaluates whether Swarm selects the correct answer.
     Handles errors and retries failed attempts.
     """
-    #db_name = row['file_name'].replace("csv", "db")
-    db_name="amazon.db"
-    task = row["question"]
+    task_id = row['ID']
+    task = row["Question"]
+    db_name = row['db_path'].replace("csv", "db")
+    level = row['level']
+
     options = [f"Answer 1: {row['Answer 1']}",
                f"Answer 2: {row['Answer 2']}",
                f"Answer 3: {row['Answer 3']}",
@@ -51,7 +53,7 @@ def evaluate_row(row):
 
     # Log results in CSV
     with open(LOG_FILE, "a") as f:
-        f.write(f"{task};{result};{correct};{latency}\n")
+        f.write(f"{task_id};{task};{level};{result};{correct};{latency};\n")
 
     return correct
 
@@ -65,13 +67,13 @@ def evaluate_all(dataset):
 
     # Open log file and write the header
     with open(LOG_FILE, "w") as f:
-        f.write("Question;Answer Received;Is Correct;Time Taken\n")
+        f.write("Question ID; Question; Difficulty Level; Model Output; IsCorrect; Latency\n")
 
     data = pd.read_csv(dataset, sep=';')
 
     for index, row in data.iterrows():
         print(f"Task #{index}")
-        print(f"Task Description: {row['question']}\n")
+        print(f"Task Description: {row['Question']}\n")
 
         result = evaluate_row(row)
         if result:
@@ -82,4 +84,4 @@ def evaluate_all(dataset):
 
 
 # Run evaluation
-evaluate_all("src/smasqa/eval/datasets/batch_1_enriched.csv")
+evaluate_all("src/smasqa/eval/datasets/questions_merged.csv")
