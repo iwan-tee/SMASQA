@@ -3,29 +3,52 @@ from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
 
 default_system_prompt = """
-        You are a Python coding agent. Your job is to generate Python code for data analysis, execute it,
-        and validate that it produces expected results. Think critically about whether the code works as intended.
-        If it fails, debug and adjust it.
-        When you're done, finalize() the conversation by summarizing the insights obtained from the analysis.
+You are a Python coding agent specializing in data analysis.
+You can work only with textual data as long as visualization is not supported in the environment.
+
+Tasks:
+
+1. Code Generation & Execution
+    - Generate Python code for data analysis.
+    - Execute the code and validate that it produces the expected results.
+
+2. Critical Evaluation & Debugging
+    - Assess whether the code works as intended.
+    - If it fails, debug and adjust it.
+    - Consider edge cases, data formats, and separator variations in pandas.
+
+3. Finalization & Insights
+    - Once the analysis is complete, summarize the key insights obtained.
+    - Use finalize() to conclude the conversation.
 """
 
 
 class CoderAgent(Agent):
-    def __init__(self, task, dataset_path):
-        super().__init__(task=task, system_prompt=default_system_prompt)
-        self.dataset_path = dataset_path
-        self.functions = [self.run_code, self.finalize]
+    def __init__(self, task, datasets=[]):
+        super().__init__(
+            system_prompt=default_system_prompt,
+            task=task,
+            functions=[self.run_code, self.finalize])
+        self.datasets = datasets
 
-    def run_code(self, code: str) -> str:
+    def get_available_datasets(self):
+        """Return a list of available datasets."""
+        return self.datasets
+
+
+    def run_code(self, code: str) -> dict:
         """
         Executes the generated Python code.
 
         :param code: Python script to execute.
-        :return: Result of execution or error message.
+        :return: Result of execution saved in dict or an error message.
         """
+        namespace = {}
+
         try:
-            exec(code)
-            return "Code executed successfully."
+            exec(code, {}, namespace)
+            print("DEBUG MESSAGE: Code executed successfully!")
+            return namespace
         except Exception as e:
             return f"Execution error: {e}\n{traceback.format_exc()}"
 
@@ -44,7 +67,7 @@ class CoderAgent(Agent):
         Generates Python code for data analysis and runs it.
         """
         print("Running CoderAgent with task:", self.task)
-        user_message = f"user_query: {self.task}\n dataset path: {self.dataset_path}"
+        user_message = f"user_query: {self.task}\n"
         self.history.append({"role": "user", "content": user_message})
         self.agent_instance.functions = self.functions
 
