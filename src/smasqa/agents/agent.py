@@ -2,7 +2,7 @@ from swarm import Swarm, Agent as SwarmAgent
 
 
 model_params = {
-    "model": "gpt-4o-mini",
+    "model": "gpt-4o",
 }
 
 
