@@ -1,7 +1,7 @@
 from _ctypes import Structure
 
 from ..agents.explorer import Explorer
-from ..utils.repl import pretty_print_messages
+from ..utils.repl import pretty_print_messages, process_and_print_streaming_response
 from ..agents.agent import Agent
 from ..agents.sql_agent import SQLAgent
 from ..agents.coder import CoderAgent
@@ -32,12 +32,12 @@ class Orchestrator(Agent):
                        self.return_answer,
                        self.get_available_datasets,
                        self.get_options],
-            task=task
+            task=task,
+            agent_name="Orchestrator",
+            streaming=True
         )
         self.options = options
-        self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(
-            ".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
-        print(self.datasets)
+        self.datasets = datasets
 
     def get_available_datasets(self):
         """
@@ -84,20 +84,22 @@ class Orchestrator(Agent):
         """
         print(datasets)
         if datasets:
-            coder = CoderAgent(task, datasets)
+            coder = CoderAgent(task, datasets, streaming=True)
             return coder.run()
 
-        coder = CoderAgent(task)
+        coder = CoderAgent(task, streaming=True)
         return coder.run()
 
-    def transfer_to_explorer(self, task: str):
+    def transfer_to_explorer(self, task: str, db_path: str):
         """
         Delegate structure extraction of a single a .db database or .csv dataset request to the Explorer agent.
 
         :param task: Clearly formulated request for explorer containing full name/path to the desired dataset.
+        :param db_name: The full path to the database.
         :return: The database schema / dataset information in a dict structured format or an error message.
         """
-        explorer = Explorer(task, model_params={"model": "gpt-4o-mini"})
+        explorer = Explorer(task, db_path=db_path, model_params={
+                            "model": "gpt-4o-mini"}, streaming=True)
         structure = explorer.run()
         if isinstance(structure, dict):
             return structure
@@ -122,7 +124,7 @@ class Orchestrator(Agent):
             task=task,
             db_description=db_description,
             db_name=db_name,
-            model_params={"model": "gpt-4o-mini"}
+            model_params={"model": "gpt-4o-mini"}, streaming=True
         )
         return sql_agent.run()
 
@@ -131,6 +133,8 @@ class Orchestrator(Agent):
         Run the orchestrator.
         """
         print("Running Orchestrator...")
+        print(self.task)
+
         user_query = f"user_query: {self.task}"
         answer_options = f"user predefined answer_options: {self.options}"
         self.history.append({"role": "user", "content": user_query})
@@ -138,8 +142,9 @@ class Orchestrator(Agent):
 
         self.agent_instance.functions = self.functions
         response = self.ai_env.run(agent=self.agent_instance,
-                                   messages=self.history)
-        pretty_print_messages(response.messages)
+                                   messages=self.history, stream=self.streaming)
+        process_and_print_streaming_response(
+            response) if self.streaming else pretty_print_messages(response.messages)
         if not self.finished:
             self.history.extend(response)
 

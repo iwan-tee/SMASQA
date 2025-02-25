@@ -15,8 +15,9 @@ swarm = { git = "https://github.com/openai/swarm.git" }
 tiktoken = "^0.9.0"
 notebook = "^7.3.2"
 matplotlib = "^3.10.0"
+scipy = "^1.7.3"
 
-[tool.poetry.dev-dependencies]
+[tool.poetry.group.dev.dependencies]
 poethepoet = "^0.31.0"
 
 [build-system]

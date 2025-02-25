@@ -7,7 +7,8 @@ import swarm
 import tiktoken
 import openai
 
-LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"  # File to log evaluation results
+# File to log evaluation results
+LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"
 MAX_RETRIES = 3  # Number of retries if Swarm fails
 
 inputTokenCount = 0
@@ -19,6 +20,7 @@ original_get_chat_completion = swarm.Swarm.get_chat_completion
 # Choose an encoding based on the model used (GPT-4, GPT-3.5, etc.)
 encoding = tiktoken.encoding_for_model("gpt-4")
 
+
 def count_tokens(text: str) -> int:
     """Helper function to count tokens in a given text."""
     return len(encoding.encode(text))
@@ -27,6 +29,7 @@ def count_tokens(text: str) -> int:
 def estimate_tokens(messages: list) -> int:
     """Estimate total tokens in a list of messages."""
     return sum(count_tokens(json.dumps(msg)) for msg in messages)
+
 
 def get_chat_completion_with_token_count(self, agent, history, context_variables, model_override, stream, debug):
     """
@@ -59,7 +62,6 @@ def get_chat_completion_with_token_count(self, agent, history, context_variables
                                  for tool_call in response.tool_calls)
     """
 
-    print(f"Output Tokens: {output_tokens}")
     outputTokenCount += output_tokens
     inputTokenCount += input_tokens
     totalTokenCount += total_tokens
@@ -68,16 +70,21 @@ def get_chat_completion_with_token_count(self, agent, history, context_variables
 
 
 # Monkey patch the method
-swarm.Swarm.get_chat_completion = get_chat_completion_with_token_count
+# swarm.Swarm.get_chat_completion = get_chat_completion_with_token_count
 
 
 def model_run(task, options, db_name):
     """
     Runs Orchestrator with a given task and answer options.
     """
+    if (db_name.endswith('.db') or db_name.endswith('.csv')):
+        db_name = db_name.split('.')[0]
+    datasets = [f"src/smasqa/eval/datasets/db/{db_name}.db",
+                f"src/smasqa/eval/datasets/raw_dbs/{db_name}.csv"]
+
     orchestrator = Orchestrator(
-        task=f"Your task is: {task} \n Target Database: {db_name}",
-        database=db_name,
+        task=f"Your task is: {task} \n Available Datasets: {str(datasets)}",
+        datasets=datasets,
         options=options
     )
     return orchestrator.run()
@@ -144,6 +151,7 @@ def evaluate_all(dataset):
         f.write("Question ID; Question; Difficulty Level; Model Output; IsCorrect; Latency; Input Tokens;Output Tokens;Total Tokens\n")
 
     data = pd.read_csv(dataset, sep=';')
+    data = data[data['ID'] == 94]
 
     for index, row in data.iterrows():
         print(f"Task #{index}")

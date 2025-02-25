@@ -2,7 +2,7 @@ import sqlite3
 from typing import Tuple
 from openai import OpenAI
 
-from ..utils.repl import pretty_print_messages
+from ..utils.repl import pretty_print_messages, process_and_print_streaming_response
 from ..agents.agent import Agent
 
 default_system_prompt = """
@@ -16,11 +16,12 @@ When you are done with the query and satisfied with the results, use finalize() 
 
 
 class SQLAgent(Agent):
-    def __init__(self, task, db_description, db_name, model_params):
+    def __init__(self, task, db_description, db_name, model_params, streaming=False):
         """
         Initialize the SQL Agent.
         """
-        super().__init__(task=task, system_prompt=default_system_prompt, model_params=model_params)
+        super().__init__(task=task, system_prompt=default_system_prompt,
+                         model_params=model_params, agent_name="SQL Agent", streaming=streaming)
         self.db_description = db_description
         self.functions = [self.run_query, self.finalize]
         self.db_name = db_name
@@ -82,10 +83,11 @@ class SQLAgent(Agent):
         self.agent_instance.functions = self.functions
 
         while not self.finished and len(self.history)-2 < self.max_turns:
-            print(f"Coding... {len(self.history)}/{self.max_turns}")
+            print(f"Coding... {len(self.history) - 2}/{self.max_turns}")
             response = self.ai_env.run(agent=self.agent_instance,
-                                       messages=self.history)
-            pretty_print_messages(response.messages)
+                                       messages=self.history, stream=self.streaming)
+            process_and_print_streaming_response(
+                response) if self.streaming else pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)
 

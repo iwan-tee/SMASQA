@@ -1,5 +1,5 @@
 import traceback
-from ..utils.repl import pretty_print_messages
+from ..utils.repl import pretty_print_messages, process_and_print_streaming_response
 from ..agents.agent import Agent
 
 default_system_prompt = """
@@ -24,17 +24,18 @@ Tasks:
 
 
 class CoderAgent(Agent):
-    def __init__(self, task, datasets=[]):
+    def __init__(self, task, datasets=[], streaming=False):
         super().__init__(
             system_prompt=default_system_prompt,
             task=task,
-            functions=[self.run_code, self.finalize])
+            functions=[self.run_code, self.finalize],
+            agent_name="Coder Agent", streaming=streaming)
+
         self.datasets = datasets
 
     def get_available_datasets(self):
         """Return a list of available datasets."""
         return self.datasets
-
 
     def run_code(self, code: str) -> dict:
         """
@@ -50,6 +51,9 @@ class CoderAgent(Agent):
             print("DEBUG MESSAGE: Code executed successfully!")
             return namespace
         except Exception as e:
+            print(f"Execution error: {e}\n{traceback.format_exc()}")
+            print("DEBUG MESSAGE: Code execution failed!")
+            print(code)
             return f"Execution error: {e}\n{traceback.format_exc()}"
 
     def finalize(self, results) -> None:
@@ -72,9 +76,11 @@ class CoderAgent(Agent):
         self.agent_instance.functions = self.functions
 
         while not self.finished and len(self.history) - 2 < self.max_turns:
-            print(f"Coding... {len(self.history)}/{self.max_turns}")
-            response = self.ai_env.run(agent=self.agent_instance, messages=self.history)
-            pretty_print_messages(response.messages)
+            print(f"Coding... {len(self.history) - 2}/{self.max_turns}")
+            response = self.ai_env.run(
+                agent=self.agent_instance, messages=self.history, stream=self.streaming)
+            process_and_print_streaming_response(
+                response) if self.streaming else pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)
 

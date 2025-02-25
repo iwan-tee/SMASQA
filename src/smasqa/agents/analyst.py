@@ -2,7 +2,7 @@ import sqlite3
 from typing import Tuple
 from openai import OpenAI
 
-from ..utils.repl import pretty_print_messages
+from ..utils.repl import pretty_print_messages, process_and_print_streaming_response
 from ..agents.agent import Agent
 
 default_system_prompt = """
@@ -12,12 +12,14 @@ Your task is to analyze execution results and / or other data you receive from t
 
 
 class Analyst(Agent):
-    def __init__(self, question, options, data) -> None:
-        super().__init__(system_prompt=default_system_prompt, task=question)
+    def __init__(self, question, options, data, streaming=False) -> None:
+        super().__init__(system_prompt=default_system_prompt,
+                         task=question, agent_name="Analyst Agent", streaming=streaming)
         self.question = question
         self.options = options
         self.data = data
-        self.functions = [self.choose_answer1, self.choose_answer2, self.choose_answer3, self.choose_answer4]
+        self.functions = [self.choose_answer1, self.choose_answer2,
+                          self.choose_answer3, self.choose_answer4]
 
     def choose_answer1(self):
         return self.options[0]
@@ -42,12 +44,12 @@ class Analyst(Agent):
 
         while not self.finished and len(self.history)-2 < self.max_turns:
             print(f"Analyzing... {len(self.history)}/{self.max_turns}")
-            response = self.ai_env.run(agent=self.agent_instance, messages=self.history)
-            pretty_print_messages(response.messages)
+            response = self.ai_env.run(
+                agent=self.agent_instance, messages=self.history, stream=self.streaming)
+            process_and_print_streaming_response(
+                response) if self.streaming else pretty_print_messages(response.messages)
+            # pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)
 
         return self.history[-1]["content"]
-
-
-

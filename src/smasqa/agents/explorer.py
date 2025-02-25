@@ -4,7 +4,7 @@ from openai import OpenAI
 
 import pandas as pd
 
-from ..utils.repl import pretty_print_messages
+from ..utils.repl import pretty_print_messages, process_and_print_streaming_response
 from ..agents.agent import Agent
 
 default_system_prompt = """
@@ -22,13 +22,17 @@ Workflow description:
 
 
 class Explorer(Agent):
-    def __init__(self, task, model_params):
+    def __init__(self, task, db_path,  model_params, streaming=False):
         super().__init__(
             task=task,
             system_prompt=default_system_prompt,
-            functions = [self.finalize, self.get_database_description, self.get_csv_description],
-            model_params=model_params
+            functions=[self.finalize, self.get_database_description,
+                       self.get_csv_description],
+            model_params=model_params,
+            agent_name="Explorer Agent",
+            streaming=streaming
         )
+        self.db_path = db_path
 
     def run(self):
         """
@@ -36,15 +40,17 @@ class Explorer(Agent):
         """
         print('Running explorer...')
         print(self.task)
-        user_message = f"Data exploration request: {self.task}"
+        print(self.db_path)
+        user_message = f"Data exploration request: {self.task} in {self.db_path}"
         self.history.append({"role": "user", "content": user_message})
 
         self.agent_instance.functions = self.functions
         while not self.finished and len(self.history) - 2 < self.max_turns:
-            print(f"Exploring...{len(self.history)}/{self.max_turns}")
+            print(f"Exploring...{len(self.history) - 2}/{self.max_turns}")
             response = self.ai_env.run(agent=self.agent_instance,
-                                       messages=self.history)
-            pretty_print_messages(response.messages)
+                                       messages=self.history, stream=self.streaming)
+            process_and_print_streaming_response(
+                response) if self.streaming else pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)
 

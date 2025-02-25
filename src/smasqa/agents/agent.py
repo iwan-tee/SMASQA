@@ -7,12 +7,13 @@ model_params = {
 
 
 class Agent:
-    def __init__(self, system_prompt, task, model_params=model_params, functions=[]):
+    def __init__(self, system_prompt, task, model_params=model_params, functions=[], agent_name="Agent", streaming=False):
         """
         Initialize the Agent.
         """
         self.ai_env = Swarm()
-        self.agent_instance = SwarmAgent(model=model_params.get("model"))
+        self.agent_instance = SwarmAgent(
+            model=model_params.get("model"), name=agent_name)
         self.system_prompt = system_prompt
         self.task = task
         self.model_params = model_params
@@ -21,6 +22,7 @@ class Agent:
         self.max_turns = 10
         self.finished = False
         self.functions = functions
+        self.streaming = streaming
 
     def run():
         """Runs the pipeline."""
