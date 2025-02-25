@@ -20,9 +20,8 @@ class SQLAgent(Agent):
         """
         Initialize the SQL Agent.
         """
-        super().__init__(task=task, system_prompt=default_system_prompt)
+        super().__init__(system_prompt=default_system_prompt, task=task, functions=[self.run_query, self.finalize])
         self.db_description = db_description
-        self.functions = [self.run_query, self.finalize]
         self.db_name = db_name
 
     def run_query(self, query, parameters=None) -> str:
@@ -85,6 +84,7 @@ class SQLAgent(Agent):
             print(f"Coding... {len(self.history)}/{self.max_turns}")
             response = self.ai_env.run(agent=self.agent_instance,
                                        messages=self.history)
+            print(response)
             pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)

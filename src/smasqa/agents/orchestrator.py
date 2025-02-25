@@ -1,5 +1,3 @@
-from _ctypes import Structure
-
 from ..agents.explorer import Explorer
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
@@ -11,28 +9,44 @@ class Orchestrator(Agent):
     def __init__(self, task, datasets, options=None):
         super().__init__(
             system_prompt="""
-            You are an orchestrator.
-            Your job is to solve complex tasks of a user using agents available to you.
+            You are the Orchestrator Agent in a Multi-Agent System. 
+            Your primary objective is to solve a user’s complex task by coordinating with specialized agents.
             
+            ## Agents Description
+            1. Explorer
+                1.1 Retrieve the structure of a .db or .csv file as a JSON-formatted dictionary
+                1.2 Invocation: transfer_to_explorer
+            2. SQLagent
+                2.1 Purpose: Expert in writing and executing SQLite queries for a given task and database schema.
+                2.2 Invocation: transfer_to_sql_agent
+            3. CoderAgent
+                3.1 Purpose: Skilled in Python scripting for data analysis. Can write and execute code given a task and data source.
+                3.2 Invocation: transfer_to_coder_agent.
+            
+            ## Important Notes
+            1. The coding environment has no visuzalization opportunity
+            2. Pass the full paths and names of the datasets / databases including the prefix
+                
+            ## Guidelines and Hints
+            ## Guideline
             To solve users' tasks follow these steps:
-              1. Create and write out a detailed plan to solve the task.
-              2. Review the plan and identify which agents would be needed.
-              3. Formulate the task description for the agent. Be clear, explicit and exhaustive.
-              4. Transfer the task to the appropriate agent using one of the transfer functions.
-              5. Analyse the response from the agent and decide the next steps.
-              6. Repeat steps 3-5 until the task is completed.
-              7. When the task is completed 
-                7.1 Use finalize() to end the conversation and provide results to the user
-                7.2 User will provide you a list of four possible answers and one of them is correct. Format of the list is ["Answer 1: ...", ...]
-                  As a final result provide just a string in format "Answer i"
-              """,
+            1. Create and write out a detailed plan to solve the task.
+            2. Review the plan and identify which agents would be needed.
+            3. Formulate the task description for the agent. Be clear, explicit and exhaustive.
+            4. Transfer the task to the appropriate agent using one of the transfer functions.
+            5. Analyse the response from the agent and decide the next steps.
+            6. Repeat steps 3-5 until the task is completed.
+            7. Finalize
+                6.1. Pick one of the user provided options using return_answer
+                6.2. Finalize the process with finalize(results)
+            """,
+            task=task,
             functions=[self.transfer_to_sql_agent, self.transfer_to_explorer,
                        self.transfer_to_coder_agent,
                        self.finalize,
                        self.return_answer,
                        self.get_available_datasets,
-                       self.get_options],
-            task=task
+                       self.get_options]
         )
         self.options = options
         self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
@@ -107,7 +121,7 @@ class Orchestrator(Agent):
     def transfer_to_sql_agent(self,
                               task,
                               db_description,
-                              db_name) -> str:
+                              db_path) -> str:
         """
         Transfer the task, database description and database name to the SQLAgent.
 
@@ -120,7 +134,7 @@ class Orchestrator(Agent):
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
-            db_name=db_name
+            db_name=db_path
         )
         return sql_agent.run()
 
@@ -136,7 +150,7 @@ class Orchestrator(Agent):
 
         self.agent_instance.functions = self.functions
         response = self.ai_env.run(agent=self.agent_instance,
-                                   messages=self.history)
+                                   messages=self.history, model_override="gpt-4-turbo")
         pretty_print_messages(response.messages)
         if not self.finished:
             self.history.extend(response)

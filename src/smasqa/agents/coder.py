@@ -1,6 +1,9 @@
-import traceback
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
+import sys
+import io
+import traceback
+
 
 default_system_prompt = """
 You are a Python coding agent specializing in data analysis.
@@ -35,32 +38,57 @@ class CoderAgent(Agent):
         """Return a list of available datasets."""
         return self.datasets
 
-
-    def run_code(self, code: str) -> dict:
+    def run_code(self, code: str):
         """
-        Executes the generated Python code.
+        Executes the generated Python code safely.
 
         :param code: Python script to execute.
-        :return: Result of execution saved in dict or an error message.
+        :return: Dict with execution results or error message.
         """
+        print(f'DEBUG MSG: CODE IS\n{code}')
         namespace = {}
+
+        # Перехват stdout и stderr
+        stdout_capture = io.StringIO()
+        stderr_capture = io.StringIO()
+        sys.stdout = stdout_capture
+        sys.stderr = stderr_capture
 
         try:
             exec(code, {}, namespace)
-            print("DEBUG MESSAGE: Code executed successfully!")
-            return namespace
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+
+            # Фильтруем namespace
+            clean_namespace = {k: v for k, v in namespace.items() if not k.startswith("__")}
+            if not clean_namespace:
+                clean_namespace["info"] = "Code executed, but no output variables found."
+
+            return {
+                "status": "success",
+                "output": clean_namespace,
+                "stdout": stdout_capture.getvalue(),
+                "stderr": stderr_capture.getvalue(),
+            }
         except Exception as e:
-            return f"Execution error: {e}\n{traceback.format_exc()}"
+            sys.stdout = sys.__stdout__
+            sys.stderr = sys.__stderr__
+            return {
+                "status": "error",
+                "message": str(e),
+                "traceback": traceback.format_exc(),
+                "stdout": stdout_capture.getvalue(),
+                "stderr": stderr_capture.getvalue(),
+            }
 
     def finalize(self, results) -> None:
         """
         Finalizes the conversation.
 
-        :param results: Final results of code execution.
+        :param results: result of the run_code() on the code
         """
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
-        print("Final result:", results)
 
     def run(self) -> str:
         """
