@@ -32,6 +32,7 @@ class CoderAgent(Agent):
             agent_name="Coder Agent", streaming=streaming)
 
         self.datasets = datasets
+        self.code_run_count = 0
 
     def get_available_datasets(self):
         """Return a list of available datasets."""
@@ -46,6 +47,8 @@ class CoderAgent(Agent):
         """
         namespace = {}
 
+        self.code_run_count += 1
+        print(f"Running code - {self.code_run_count} iteration...")
         try:
             exec(code, {}, namespace)
             print("DEBUG MESSAGE: Code executed successfully!")
@@ -71,11 +74,11 @@ class CoderAgent(Agent):
         Generates Python code for data analysis and runs it.
         """
         print("Running CoderAgent with task:", self.task)
-        user_message = f"user_query: {self.task}\n"
+        user_message = f"user_query: {self.task}\n Available datasets: {str(self.datasets)}\n"
         self.history.append({"role": "user", "content": user_message})
         self.agent_instance.functions = self.functions
 
-        while not self.finished and len(self.history) - 2 < self.max_turns:
+        while not self.finished and len(self.history) - 2 < self.max_turns and self.code_run_count <= self.max_turns:
             print(f"Coding... {len(self.history) - 2}/{self.max_turns}")
             response = self.ai_env.run(
                 agent=self.agent_instance, messages=self.history, stream=self.streaming)
@@ -83,5 +86,10 @@ class CoderAgent(Agent):
                 response) if self.streaming else pretty_print_messages(response.messages)
             if not self.finished:
                 self.history.extend(response)
+
+        if (self.code_run_count == self.max_turns and self.finished == False):
+            self.history.append(
+                {"role": "assistant", "content": "Code execution limit reached with no valid results."})
+            self.finished = True
 
         return self.history[-1]["content"]

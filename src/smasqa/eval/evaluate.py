@@ -15,6 +15,8 @@ inputTokenCount = 0
 outputTokenCount = 0
 totalTokenCount = 0
 
+agent_calls_count = {"analyst": 0, "explorer": 0, "sql": 0, "coder": 0}
+
 original_get_chat_completion = swarm.Swarm.get_chat_completion
 
 # Choose an encoding based on the model used (GPT-4, GPT-3.5, etc.)
@@ -85,7 +87,8 @@ def model_run(task, options, db_name):
     orchestrator = Orchestrator(
         task=f"Your task is: {task} \n Available Datasets: {str(datasets)}",
         datasets=datasets,
-        options=options
+        options=options,
+        agent_calls_count=agent_calls_count,
     )
     return orchestrator.run()
 
@@ -118,6 +121,7 @@ def evaluate_row(row):
             break  # Exit the loop if successful
         except Exception as e:
             print(f"Swarm error (attempt {attempt + 1}): {e}")
+    print(f"Agent count: {agent_calls_count}")
     # If Swarm fails after all retries, consider it incorrect
     if result is None:
         result = "ERROR"

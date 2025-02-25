@@ -8,7 +8,7 @@ from ..agents.coder import CoderAgent
 
 
 class Orchestrator(Agent):
-    def __init__(self, task, datasets, options=None):
+    def __init__(self, task, datasets, options=None, agent_calls_count=None):
         super().__init__(
             system_prompt="""
             You are an orchestrator.
@@ -38,6 +38,7 @@ class Orchestrator(Agent):
         )
         self.options = options
         self.datasets = datasets
+        self.agent_calls_count = agent_calls_count
 
     def get_available_datasets(self):
         """
@@ -82,6 +83,7 @@ class Orchestrator(Agent):
         :param datasets [optional]: A list of datasets to transfer the task to.
         :return: code execution result in dict format or an error message.
         """
+        self.agent_calls_count["coder"] += 1
         print(datasets)
         if datasets:
             coder = CoderAgent(task, datasets, streaming=True)
@@ -98,6 +100,7 @@ class Orchestrator(Agent):
         :param db_name: The full path to the database.
         :return: The database schema / dataset information in a dict structured format or an error message.
         """
+        self.agent_calls_count["explorer"] += 1
         explorer = Explorer(task, db_path=db_path, model_params={
                             "model": "gpt-4o-mini"}, streaming=True)
         structure = explorer.run()
@@ -119,7 +122,7 @@ class Orchestrator(Agent):
 
         :return: The query result as a string.
         """
-
+        self.agent_calls_count["sql"] += 1
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
