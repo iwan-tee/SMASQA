@@ -3,3 +3,5 @@
 **/__pycache__/
 
 src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv
+
+src/smasqa/eval/results/3 agents - o1 orchestrator | 4o-mini agents/merged_results_old.csv
