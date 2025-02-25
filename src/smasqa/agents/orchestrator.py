@@ -35,7 +35,8 @@ class Orchestrator(Agent):
             task=task
         )
         self.options = options
-        self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
+        self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(
+            ".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
         print(self.datasets)
 
     def get_available_datasets(self):
@@ -51,7 +52,6 @@ class Orchestrator(Agent):
         :return: A list containing four answer choices.
         """
         return self.options
-
 
     def return_answer(self, option: int) -> str:
         """
@@ -97,7 +97,7 @@ class Orchestrator(Agent):
         :param task: Clearly formulated request for explorer containing full name/path to the desired dataset.
         :return: The database schema / dataset information in a dict structured format or an error message.
         """
-        explorer = Explorer(task)
+        explorer = Explorer(task, model_params={"model": "gpt-4o-mini"})
         structure = explorer.run()
         if isinstance(structure, dict):
             return structure
@@ -117,10 +117,12 @@ class Orchestrator(Agent):
 
         :return: The query result as a string.
         """
+
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
-            db_name=db_name
+            db_name=db_name,
+            model_params={"model": "gpt-4o-mini"}
         )
         return sql_agent.run()
 

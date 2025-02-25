@@ -20,14 +20,15 @@ Workflow description:
     4. Finalize the process.
 """
 
+
 class Explorer(Agent):
-    def __init__(self, task):
+    def __init__(self, task, model_params):
         super().__init__(
             task=task,
             system_prompt=default_system_prompt,
-            functions = [self.finalize, self.get_database_description, self.get_csv_description]
+            functions = [self.finalize, self.get_database_description, self.get_csv_description],
+            model_params=model_params
         )
-
 
     def run(self):
         """

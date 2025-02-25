@@ -16,11 +16,11 @@ When you are done with the query and satisfied with the results, use finalize() 
 
 
 class SQLAgent(Agent):
-    def __init__(self, task, db_description, db_name):
+    def __init__(self, task, db_description, db_name, model_params):
         """
         Initialize the SQL Agent.
         """
-        super().__init__(task=task, system_prompt=default_system_prompt)
+        super().__init__(task=task, system_prompt=default_system_prompt, model_params=model_params)
         self.db_description = db_description
         self.functions = [self.run_query, self.finalize]
         self.db_name = db_name

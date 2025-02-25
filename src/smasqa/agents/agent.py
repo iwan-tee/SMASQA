@@ -12,7 +12,7 @@ class Agent:
         Initialize the Agent.
         """
         self.ai_env = Swarm()
-        self.agent_instance = SwarmAgent()
+        self.agent_instance = SwarmAgent(model=model_params.get("model"))
         self.system_prompt = system_prompt
         self.task = task
         self.model_params = model_params
