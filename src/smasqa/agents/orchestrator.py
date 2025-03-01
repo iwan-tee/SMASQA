@@ -137,10 +137,11 @@ class Orchestrator(Agent):
         self.history.append({"role": "user", "content": answer_options})
 
         self.agent_instance.functions = self.functions
-        response = self.ai_env.run(agent=self.agent_instance,
-                                   messages=self.history)
-        pretty_print_messages(response.messages)
-        if not self.finished:
-            self.history.extend(response)
+        while not self.finished and len(self.history) - 2 < self.max_turns:
+            response = self.ai_env.run(agent=self.agent_instance,
+                                       messages=self.history)
+            pretty_print_messages(response.messages)
+            if not self.finished:
+                self.history.extend(response)
 
         return self.history[-1]["content"]
