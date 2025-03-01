@@ -1,6 +1,4 @@
 import sqlite3
-from typing import Tuple
-from openai import OpenAI
 
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
