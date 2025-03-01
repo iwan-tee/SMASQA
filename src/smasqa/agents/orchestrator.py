@@ -92,7 +92,6 @@ class Orchestrator(Agent):
         :param datasets [optional]: A list of datasets to transfer the task to.
         :return: code execution result in dict format or an error message.
         """
-        print(datasets)
         if datasets:
             coder = CoderAgent(task, datasets)
             return coder.run()

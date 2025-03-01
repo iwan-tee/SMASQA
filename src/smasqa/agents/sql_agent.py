@@ -76,7 +76,6 @@ class SQLAgent(Agent):
         """
         Generate an SQL query based on the user's natural language query and tests if it runs.
         """
-        print("Running SQL agent with the following task:", self.task)
         user_message = f"user_query: {self.task}\n database description: {self.db_description}"
         self.history.append({"role": "user", "content": user_message})
         self.agent_instance.functions = self.functions

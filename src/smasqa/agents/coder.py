@@ -47,7 +47,6 @@ class CoderAgent(Agent):
 
         try:
             exec(code, {}, namespace)
-            print("DEBUG MESSAGE: Code executed successfully!")
             return namespace
         except Exception as e:
             return f"Execution error: {e}\n{traceback.format_exc()}"
@@ -60,13 +59,11 @@ class CoderAgent(Agent):
         """
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
-        print("Final result:", results)
 
     def run(self) -> str:
         """
         Generates Python code for data analysis and runs it.
         """
-        print("Running CoderAgent with task:", self.task)
         user_message = f"user_query: {self.task}\n"
         self.history.append({"role": "user", "content": user_message})
         self.agent_instance.functions = self.functions
