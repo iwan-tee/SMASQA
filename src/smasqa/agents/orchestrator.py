@@ -1,5 +1,3 @@
-from _ctypes import Structure
-
 from ..agents.explorer import Explorer
 from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
@@ -11,8 +9,22 @@ class Orchestrator(Agent):
     def __init__(self, task, datasets, options=None):
         super().__init__(
             system_prompt="""
-            You are an orchestrator.
+            # Your role
+            You are an orchestrator in the Multi-agentic system.
             Your job is to solve complex tasks of a user using agents available to you.
+            
+            # Available Agents 
+            ## Explorer
+            - explores the structure of datasets / databases and returns it as a dict
+            - invokable via transfer_to_explorer
+            
+            ## SQLAgent
+            - specializes in writing and executing SQLite queries for analytics 
+            - invokable via transfer_to_sql_agent
+            
+            ## CoderAgent
+            - Python coder specializing in writing and executing Python code for data analytical purposes
+            - invokable via transfer_to_coder_agent
             
             To solve users' tasks follow these steps:
               1. Create and write out a detailed plan to solve the task.
@@ -37,11 +49,10 @@ class Orchestrator(Agent):
         self.options = options
         self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(
             ".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
-        print(self.datasets)
 
     def get_available_datasets(self):
         """
-        Retrieve the list with paths (names) of available datasets.
+        Retrieve the list with paths of available datasets.
         """
         return self.datasets
 
@@ -66,13 +77,12 @@ class Orchestrator(Agent):
 
     def finalize(self, results: str) -> None:
         """
-        Finalizes the conversation by appending the final result and marking completion.
+        Finalize the conversation by appending the final result and marking completion.
 
         :param results: The answer option selected.
         """
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
-        print(self.history[-1])
 
     def transfer_to_coder_agent(self, task, datasets=[]):
         """
