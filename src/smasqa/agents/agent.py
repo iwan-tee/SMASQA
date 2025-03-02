@@ -1,4 +1,5 @@
 from swarm import Swarm, Agent as SwarmAgent
+from functools import wraps
 
 
 model_params = {
@@ -21,6 +22,17 @@ class Agent:
         self.max_turns = 10
         self.finished = False
         self.functions = functions
+        self.turns = 0
+
+    def __getattribute__(self, name):
+        attr = object.__getattribute__(self, name)
+        if callable(attr) and name not in {"__init__", "__getattribute__", "run"}:
+            @wraps(attr)
+            def wrapped_method(*args, **kwargs):
+                object.__setattr__(self, "turns", self.steps + 1)
+                return attr(*args, **kwargs)
+            return wrapped_method
+        return attr
 
     def run():
         """Runs the pipeline."""
