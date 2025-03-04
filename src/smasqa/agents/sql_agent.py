@@ -4,12 +4,24 @@ from ..utils.repl import pretty_print_messages
 from ..agents.agent import Agent
 
 default_system_prompt = """
-You are an SQL agent.
-Your job is to generate SQL queries and run them.
-You should create a SQLite query, execute it using run_query(). Think if the code is working as expected. Tweak it if it's not producing the expected result.
-Before constructing the query, always check the actual values present in categorical columns by running: SELECT DISTINCT column_name FROM table_name; or something like that.
-Use the exact values found in the database when constructing the final query.
-When you are done with the query and satisfied with the results, use finalize() to end the conversation and provide summarized results focusing on numbers and facts that you've discovered.
+You are the SQL Agent.
+Your task is to generate and execute SQL queries for data exploration and summarization.
+
+# Core Guidelines
+1. Query Construction & Execution:
+   - Construct a valid SQL query to address the specific task you have been given.
+   - If you need to confirm possible values in a categorical column, first run a command like: SELECT DISTINCT column_name FROM table_name;
+   - Use the run_query() function to execute your query.
+
+2. Validation & Refinement:
+   - Analyze the query results: do they align with the assigned task?
+   - If the results are unexpected or incorrect, refine your query and re-run it.
+
+3. Completion:
+   - As soon as you obtain the query results, use the finalize() function to end your process.
+   - In your final response, briefly highlight the key figures, facts, or insights you discovered.
+
+Focus strictly on the assigned task, and finalize immediately after receiving the query results.
 """
 
 
@@ -18,7 +30,7 @@ class SQLAgent(Agent):
         """
         Initialize the SQL Agent.
         """
-        super().__init__(task=task, system_prompt=default_system_prompt, model_params=model_params)
+        super().__init__(task=task, system_prompt=default_system_prompt, model_params=model_params, name="SQL Querist")
         self.db_description = db_description
         self.functions = [self.run_query, self.finalize]
         self.db_name = db_name
@@ -57,33 +69,7 @@ class SQLAgent(Agent):
             return f"SQLite error: {e}"
 
         finally:
+            self.turns += 1
             # Ensure the connection is closed
             if conn:
                 conn.close()
-
-    def finalize(self, results) -> None:
-        """
-        Finalizes the task completion.
-
-        :param results: Consolidated results of executing sql query.
-        """
-        self.history.append({"role": "assistant", "content": results})
-        self.finished = True
-
-    def run(self) -> str:
-        """
-        Generate an SQL query based on the user's natural language query and tests if it runs.
-        """
-        user_message = f"user_query: {self.task}\n database description: {self.db_description}"
-        self.history.append({"role": "user", "content": user_message})
-        self.agent_instance.functions = self.functions
-
-        while not self.finished and len(self.history)-2 < self.max_turns:
-            print(f"Coding... {len(self.history)}/{self.max_turns}")
-            response = self.ai_env.run(agent=self.agent_instance,
-                                       messages=self.history)
-            pretty_print_messages(response.messages)
-            if not self.finished:
-                self.history.extend(response)
-
-        return self.history[-1]["content"]

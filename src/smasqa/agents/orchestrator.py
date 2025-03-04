@@ -26,17 +26,26 @@ class Orchestrator(Agent):
                        self.transfer_to_coder_agent,
                        self.finalize,
                        self.get_available_datasets],
-            task=task
+            task=task,
+            name="Orchestrator"
         )
         self.options = options
         self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(
             ".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
+
+        self.servant_turns = {
+            "SQLAgent": 0,
+            "CoderAgent": 0,
+            "Explorer": 0
+        }
+
 
 
     def get_available_datasets(self):
         """
         Retrieve the list with paths of available datasets.
         """
+        self.turns += 1
         return self.datasets
 
     def get_options(self) -> list:
@@ -45,6 +54,7 @@ class Orchestrator(Agent):
 
         :return: A list containing four answer choices.
         """
+        self.turns += 1
         return self.options
 
     def return_answer(self, option: int) -> str:
@@ -71,7 +81,10 @@ class Orchestrator(Agent):
             coder = CoderAgent(task, datasets)
             return coder.run()
         coder = CoderAgent(task)
-        return coder.run()[0]
+        self.turns += 1
+        results = coder.run()
+        self.servant_turns["CoderAgent"] += results[2]
+        return results[0]
 
     def transfer_to_explorer(self, task: str):
         """
@@ -80,8 +93,11 @@ class Orchestrator(Agent):
         :param task: Clearly formulated request for explorer containing full name/path to the desired dataset.
         :return: The database schema / dataset information in a dict structured format or an error message.
         """
+        self.turns += 1
         explorer = Explorer(task, model_params={"model": "gpt-4o-mini"})
-        structure = explorer.run()[0]
+        results = explorer.run()
+        self.servant_turns["Explorer"] += results[2]
+        structure = results[0]
         if isinstance(structure, dict):
             return structure
         structure = structure.replace('"""', "").replace("json\n", "").strip()
@@ -100,11 +116,13 @@ class Orchestrator(Agent):
 
         :return: The query result as a string.
         """
-
+        self.turns += 1
         sql_agent = SQLAgent(
             task=task,
             db_description=db_description,
             db_name=db_name,
             model_params={"model": "gpt-4o-mini"}
         )
+        results = sql_agent.run()
+        self.servant_turns["SQLAgent"] += results[2]
         return sql_agent.run()[0]

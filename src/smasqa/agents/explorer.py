@@ -27,7 +27,8 @@ class Explorer(Agent):
             task=task,
             system_prompt=default_system_prompt,
             functions = [self.finalize, self.get_database_description, self.get_csv_description],
-            model_params=model_params
+            model_params=model_params,
+            name="Data Explorer"
         )
 
     def get_database_description(self, db_path):
@@ -64,6 +65,7 @@ class Explorer(Agent):
 
         conn.close()
 
+        self.turns += 1
         return db_description
 
     def get_csv_description(self, csv_path):
@@ -88,4 +90,5 @@ class Explorer(Agent):
                 "missing_values": df[column].isnull().sum()
             })
 
+        self.turns += 1
         return dataset_description

@@ -28,11 +28,14 @@ class CoderAgent(Agent):
         super().__init__(
             system_prompt=default_system_prompt,
             task=task,
-            functions=[self.run_code, self.finalize, self.get_available_datasets])
+            functions=[self.run_code, self.finalize, self.get_available_datasets],
+            name="Python Coder"
+        )
         self.datasets = datasets
 
     def get_available_datasets(self):
         """Return a list of available datasets."""
+        self.turns += 1
         return self.datasets
 
 
@@ -50,3 +53,5 @@ class CoderAgent(Agent):
             return namespace
         except Exception as e:
             return f"Execution error: {e}\n{traceback.format_exc()}"
+        finally:
+            self.turns += 1

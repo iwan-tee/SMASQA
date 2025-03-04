@@ -6,15 +6,9 @@ model_params = {
     "model": "gpt-4o",
 }
 
-class AgentLogs:
-    def __init__(self):
-        self.turns = 0
-        self.history = dict()
-
-
 
 class Agent:
-    def __init__(self, system_prompt, task, name=, model_params=model_params, functions=[]):
+    def __init__(self, system_prompt, task, name="Agent", model_params=model_params, functions=[]):
         """
         Initialize the Agent.
         """
@@ -29,7 +23,6 @@ class Agent:
         self.finished = False
         self.functions = functions
         self.turns = 0
-        self.logs = AgentLogs()
         self.agent_instance.name = name
 
     def run(self):
@@ -43,7 +36,7 @@ class Agent:
             if not self.finished:
                 self.history.extend(response.messages)
 
-        return self.history[-1]["content"], self.logs
+        return self.history[-1]["content"], self.history, self.turns
 
     def finalize(self, results):
         """Finalizes the conversation."""
