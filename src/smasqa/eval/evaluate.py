@@ -76,12 +76,12 @@ def model_run(task, options, db_name):
     Runs Orchestrator with a given task and answer options.
     """
     orchestrator = Orchestrator(
-        task=f"Your task is: {task} \n Target Database: {db_name}",
-        database=db_name,
+        task=f"Your task is: {task}",
+        datasets=db_name,
         options=options
     )
-    return orchestrator.run()
-
+    result = orchestrator.run()
+    return result
 
 def evaluate_row(row):
     """
@@ -94,7 +94,7 @@ def evaluate_row(row):
 
     task_id = row['ID']
     task = row["Question"]
-    db_name = row['db_path'].replace("csv", "db")
+    db_name = row['db_path']
     level = row['level']
 
     options = [f"Answer 1: {row['Answer 1']}",
@@ -114,8 +114,6 @@ def evaluate_row(row):
     # If Swarm fails after all retries, consider it incorrect
     if result is None:
         result = "ERROR"
-    else:
-        result = result[:8]
     end_time = time()
     latency = end_time - start_time
 
@@ -144,7 +142,6 @@ def evaluate_all(dataset):
         f.write("Question ID; Question; Difficulty Level; Model Output; IsCorrect; Latency; Input Tokens;Output Tokens;Total Tokens\n")
 
     data = pd.read_csv(dataset, sep=';')
-
     for index, row in data.iterrows():
         print(f"Task #{index}")
         print(f"Task Description: {row['Question']}\n")
@@ -158,4 +155,4 @@ def evaluate_all(dataset):
 
 
 # Run evaluation
-evaluate_all("src/smasqa/eval/datasets/questions_merged.csv")
+evaluate_all("src/smasqa/eval/datasets/questions_merged_.csv")

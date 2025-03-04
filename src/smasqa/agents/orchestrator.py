@@ -13,19 +13,6 @@ class Orchestrator(Agent):
             You are an orchestrator in the Multi-agentic system.
             Your job is to solve complex tasks of a user using agents available to you.
             
-            # Available Agents 
-            ## Explorer
-            - explores the structure of datasets / databases and returns it as a dict
-            - invokable via transfer_to_explorer
-            
-            ## SQLAgent
-            - specializes in writing and executing SQLite queries for analytics 
-            - invokable via transfer_to_sql_agent
-            
-            ## CoderAgent
-            - Python coder specializing in writing and executing Python code for data analytical purposes
-            - invokable via transfer_to_coder_agent
-            
             To solve users' tasks follow these steps:
               1. Create and write out a detailed plan to solve the task.
               2. Review the plan and identify which agents would be needed.
@@ -49,6 +36,7 @@ class Orchestrator(Agent):
         self.options = options
         self.datasets = [f"src/smasqa/eval/datasets/db/{x}" if x.endswith(
             ".db") else f"src/smasqa/eval/datasets/raw_dbs/{x}" for x in eval(datasets)]
+
 
     def get_available_datasets(self):
         """
@@ -93,11 +81,8 @@ class Orchestrator(Agent):
         :return: code execution result in dict format or an error message.
         """
         if datasets:
-            coder = CoderAgent(task, datasets)
-            return coder.run()
-
-        coder = CoderAgent(task)
-        return coder.run()
+            return CoderAgent(task, datasets).run()
+        return CoderAgent(task).run()
 
     def transfer_to_explorer(self, task: str):
         """

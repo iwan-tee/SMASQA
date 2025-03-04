@@ -29,7 +29,7 @@ class Agent:
         if callable(attr) and name not in {"__init__", "__getattribute__", "run"}:
             @wraps(attr)
             def wrapped_method(*args, **kwargs):
-                object.__setattr__(self, "turns", self.steps + 1)
+                object.__setattr__(self, "turns", self.turns + 1)
                 return attr(*args, **kwargs)
             return wrapped_method
         return attr
