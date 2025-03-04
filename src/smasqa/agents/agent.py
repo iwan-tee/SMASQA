@@ -1,14 +1,20 @@
 from swarm import Swarm, Agent as SwarmAgent
 from functools import wraps
-
+from ..utils.repl import pretty_print_messages
 
 model_params = {
     "model": "gpt-4o",
 }
 
+class AgentLogs:
+    def __init__(self):
+        self.turns = 0
+        self.history = dict()
+
+
 
 class Agent:
-    def __init__(self, system_prompt, task, model_params=model_params, functions=[]):
+    def __init__(self, system_prompt, task, name=, model_params=model_params, functions=[]):
         """
         Initialize the Agent.
         """
@@ -23,19 +29,23 @@ class Agent:
         self.finished = False
         self.functions = functions
         self.turns = 0
+        self.logs = AgentLogs()
+        self.agent_instance.name = name
 
-    def __getattribute__(self, name):
-        attr = object.__getattribute__(self, name)
-        if callable(attr) and name not in {"__init__", "__getattribute__", "run"}:
-            @wraps(attr)
-            def wrapped_method(*args, **kwargs):
-                object.__setattr__(self, "turns", self.turns + 1)
-                return attr(*args, **kwargs)
-            return wrapped_method
-        return attr
-
-    def run():
+    def run(self):
         """Runs the pipeline."""
+        self.history.append({"role": "user", "content": f"Task is {self.task}"})
+        self.agent_instance.functions = self.functions
+        while not self.finished:
+            response = self.ai_env.run(agent=self.agent_instance,
+                                       messages=self.history)
+            pretty_print_messages(response.messages)
+            if not self.finished:
+                self.history.extend(response.messages)
 
-    def finalize():
+        return self.history[-1]["content"], self.logs
+
+    def finalize(self, results):
         """Finalizes the conversation."""
+        self.history.append({"role": "assistant", "content": results})
+        self.finished = True

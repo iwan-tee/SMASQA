@@ -30,35 +30,6 @@ class Explorer(Agent):
             model_params=model_params
         )
 
-    def run(self):
-        """
-        Run the process of sqlite db exploration
-        """
-        print('Running explorer...')
-        print(self.task)
-        user_message = f"Data exploration request: {self.task}"
-        self.history.append({"role": "user", "content": user_message})
-
-        self.agent_instance.functions = self.functions
-        while not self.finished and len(self.history) - 2 < self.max_turns:
-            print(f"Exploring...{len(self.history)}/{self.max_turns}")
-            response = self.ai_env.run(agent=self.agent_instance,
-                                       messages=self.history)
-            pretty_print_messages(response.messages)
-            if not self.finished:
-                self.history.extend(response)
-
-        return self.history[-1]["content"]
-
-    def finalize(self, results) -> None:
-        """
-        Finalizes the conversation.
-
-        :param results: Just a result of get_database_description calling.
-        """
-        self.history.append({"role": "assistant", "content": results})
-        self.finished = True
-
     def get_database_description(self, db_path):
         """
         Returns a description (structure) of the database as a dictionary.

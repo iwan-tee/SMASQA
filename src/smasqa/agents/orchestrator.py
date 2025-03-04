@@ -10,9 +10,9 @@ class Orchestrator(Agent):
         super().__init__(
             system_prompt="""
             # Your role
-            You are an orchestrator in the Multi-agentic system.
-            Your job is to solve complex tasks of a user using agents available to you.
-            
+            You are an orchestrator in a Multi-agentic system.
+            Your job is to solve complex tasks of a user using agents available to you.            
+                
             To solve users' tasks follow these steps:
               1. Create and write out a detailed plan to solve the task.
               2. Review the plan and identify which agents would be needed.
@@ -20,17 +20,12 @@ class Orchestrator(Agent):
               4. Transfer the task to the appropriate agent using one of the transfer functions.
               5. Analyse the response from the agent and decide the next steps.
               6. Repeat steps 3-5 until the task is completed.
-              7. When the task is completed 
-                7.1 Use finalize() to end the conversation and provide results to the user
-                7.2 User will provide you a list of four possible answers and one of them is correct. Format of the list is ["Answer 1: ...", ...]
-                  As a final result provide just a string in format "Answer i"
+              7. When the task is completed, use finalize() to end the conversation and provide results to the user
               """,
             functions=[self.transfer_to_sql_agent, self.transfer_to_explorer,
                        self.transfer_to_coder_agent,
                        self.finalize,
-                       self.return_answer,
-                       self.get_available_datasets,
-                       self.get_options],
+                       self.get_available_datasets],
             task=task
         )
         self.options = options
@@ -63,14 +58,6 @@ class Orchestrator(Agent):
             return f"Answer {option}"
         return "Error! None of the answers are correct"
 
-    def finalize(self, results: str) -> None:
-        """
-        Finalize the conversation by appending the final result and marking completion.
-
-        :param results: The answer option selected.
-        """
-        self.history.append({"role": "assistant", "content": results})
-        self.finished = True
 
     def transfer_to_coder_agent(self, task, datasets=[]):
         """
@@ -81,8 +68,10 @@ class Orchestrator(Agent):
         :return: code execution result in dict format or an error message.
         """
         if datasets:
-            return CoderAgent(task, datasets).run()
-        return CoderAgent(task).run()
+            coder = CoderAgent(task, datasets)
+            return coder.run()
+        coder = CoderAgent(task)
+        return coder.run()[0]
 
     def transfer_to_explorer(self, task: str):
         """
@@ -92,7 +81,7 @@ class Orchestrator(Agent):
         :return: The database schema / dataset information in a dict structured format or an error message.
         """
         explorer = Explorer(task, model_params={"model": "gpt-4o-mini"})
-        structure = explorer.run()
+        structure = explorer.run()[0]
         if isinstance(structure, dict):
             return structure
         structure = structure.replace('"""', "").replace("json\n", "").strip()
@@ -118,24 +107,4 @@ class Orchestrator(Agent):
             db_name=db_name,
             model_params={"model": "gpt-4o-mini"}
         )
-        return sql_agent.run()
-
-    def run(self) -> str:
-        """
-        Run the orchestrator.
-        """
-        print("Running Orchestrator...")
-        user_query = f"user_query: {self.task}"
-        answer_options = f"user predefined answer_options: {self.options}"
-        self.history.append({"role": "user", "content": user_query})
-        self.history.append({"role": "user", "content": answer_options})
-
-        self.agent_instance.functions = self.functions
-        while not self.finished and len(self.history) - 2 < self.max_turns:
-            response = self.ai_env.run(agent=self.agent_instance,
-                                       messages=self.history)
-            pretty_print_messages(response.messages)
-            if not self.finished:
-                self.history.extend(response)
-
-        return self.history[-1]["content"]
+        return sql_agent.run()[0]
