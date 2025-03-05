@@ -7,8 +7,10 @@ import swarm
 import tiktoken
 import openai
 
+from smasqa.agents.sql_agent import SQLAgent
+
 # File to log evaluation results
-LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"
+LOG_FILE = "src/smasqa/eval/results/temp/merged_results.csv"
 MAX_RETRIES = 3  # Number of retries if Swarm fails
 
 inputTokenCount = 0
@@ -84,13 +86,20 @@ def model_run(task, options, db_name):
     datasets = [f"src/smasqa/eval/datasets/db/{db_name}.db",
                 f"src/smasqa/eval/datasets/raw_dbs/{db_name}.csv"]
 
-    orchestrator = Orchestrator(
+    agent = Orchestrator(
         task=f"Your task is: {task} \n Available Datasets: {str(datasets)}",
         datasets=datasets,
         options=options,
         agent_calls_count=agent_calls_count,
     )
-    return orchestrator.run()
+    # agent = SQLAgent(
+    #     task=f'{task}\n as an output in finalize(), choose the correct answer from the following options: {options}. Just print the correct answer in the format Answer <answer number> or print ERROR if none of the answers match.',
+    #     db_description="",
+    #     db_name=datasets[0],
+    #     model_params={"model": "gpt-4o"},
+    #     streaming=True
+    # )
+    return agent.run()
 
 
 def evaluate_row(row):
