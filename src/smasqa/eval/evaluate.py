@@ -6,6 +6,7 @@ import json
 import swarm
 import tiktoken
 import openai
+import random
 
 LOG_FILE = "src/smasqa/eval/results/3 agents - all gpt-4o/merged_results.csv"  # File to log evaluation results
 MAX_RETRIES = 3  # Number of retries if Swarm fails
@@ -46,20 +47,7 @@ def get_chat_completion_with_token_count(self, agent, history, context_variables
         output_tokens = response.usage.completion_tokens
         input_tokens = response.usage.prompt_tokens
         total_tokens = response.usage.total_tokens
-    """
-    if isinstance(response, openai.Completion) or 1:
-        print(f'DEBUG MESSAGE: {response}\n')
-        if response.content:
-            output_tokens += count_tokens(response.content)
-        if response.function_call:
-            output_tokens += count_tokens(
-                json.dumps(response.function_call.dict()))
-        if response.tool_calls:
-            output_tokens += sum(count_tokens(json.dumps(tool_call.dict()))
-                                 for tool_call in response.tool_calls)
-    """
 
-    print(f"Output Tokens: {output_tokens}")
     outputTokenCount += output_tokens
     inputTokenCount += input_tokens
     totalTokenCount += total_tokens
@@ -80,8 +68,10 @@ def model_run(task, options, db_name):
         datasets=db_name,
         options=options
     )
-    result = orchestrator.run()
-    return result
+    result = orchestrator.run()[0]
+    orchestrator_turns = orchestrator.turns
+    servant_turns = orchestrator.servant_turns
+    return result, orchestrator_turns, servant_turns
 
 def evaluate_row(row):
     """
@@ -97,17 +87,40 @@ def evaluate_row(row):
     db_name = row['db_path']
     level = row['level']
 
-    options = [f"Answer 1: {row['Answer 1']}",
-               f"Answer 2: {row['Answer 2']}",
-               f"Answer 3: {row['Answer 3']}",
-               f"Answer 4: {row['Answer 4']}"
-               ]
+    original_answers = [
+        ("Answer 1", row['Answer 1']),
+        ("Answer 2", row['Answer 2']),
+        ("Answer 3", row['Answer 3']),
+        ("Answer 4", row['Answer 4'])
+    ]
+
+    shuffled_answers = original_answers.copy()
+    shuffle_map = dict()
+    random.shuffle(shuffled_answers)
+    for i in range(4):
+        shuffle_map[f'Answer {i+1}'] = shuffled_answers[i][0]
+
+    print(shuffle_map)
+    print(shuffled_answers)
+
+    # Формируем новый список для передачи в модель
+    options = [f'Answer {i+1}: {shuffled_answers[i][1]}' for i in range(4)]
+
+
+
+    print(options)
 
     result = None
     start_time = time()
     for attempt in range(MAX_RETRIES):
         try:
-            result = model_run(task, options, db_name=db_name)
+            results_all = model_run(task, options, db_name=db_name)
+            selected_option = results_all[0]
+            result = shuffle_map[selected_option]
+            orchestrator_turns = results_all[1]
+            SQL_Turns = results_all[2]['SQLAgent']
+            Coder_Turns = results_all[2]['CoderAgent']
+            Explorer_Turns = results_all[2]['Explorer']
             break  # Exit the loop if successful
         except Exception as e:
             print(f"Swarm error (attempt {attempt + 1}): {e}")
@@ -116,12 +129,11 @@ def evaluate_row(row):
         result = "ERROR"
     end_time = time()
     latency = end_time - start_time
-
     correct = (result == "Answer 1")
 
     # Log results in CSV
     with open(LOG_FILE, "a") as f:
-        f.write(f"{task_id};{task};{level};{result};{correct};{latency};{inputTokenCount};{outputTokenCount};{totalTokenCount}\n")
+        f.write(f"{task_id};{task};{level};{result};{correct};{latency};{orchestrator_turns};{Explorer_Turns};{SQL_Turns};{Coder_Turns};{inputTokenCount};{outputTokenCount};{totalTokenCount}\n")
 
     inputTokenCount = 0
     outputTokenCount = 0
@@ -139,7 +151,7 @@ def evaluate_all(dataset):
 
     # Open log file and write the header
     with open(LOG_FILE, "w") as f:
-        f.write("Question ID; Question; Difficulty Level; Model Output; IsCorrect; Latency; Input Tokens;Output Tokens;Total Tokens\n")
+        f.write("Question ID;Question;Difficulty Level;Model Output;IsCorrect;Latency;Orchestrator_Turns;Explorer_Turns;SQLAgent_Turns;Coder_Turns;Input Tokens;Output Tokens;Total Tokens\n")
 
     data = pd.read_csv(dataset, sep=';')
     for index, row in data.iterrows():
