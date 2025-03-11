@@ -12,6 +12,12 @@ class Orchestrator(Agent):
             # Your role
             You are an orchestrator in a Multi-agentic system.
             Your job is to solve complex tasks of a user using agents available to you.            
+            
+            # Input and Output Format
+            - You have predefined answer options retrievable via get_answer_options
+            - To answer, you have to choose the right option and return it using return_answer function
+            
+            
                 
             To solve users' tasks follow these steps:
               1. Create and write out a detailed plan to solve the task.
@@ -20,12 +26,13 @@ class Orchestrator(Agent):
               4. Transfer the task to the appropriate agent using one of the transfer functions.
               5. Analyse the response from the agent and decide the next steps.
               6. Repeat steps 3-5 until the task is completed.
-              7. When the task is completed, use finalize() to end the conversation and provide results to the user
+              7. When the task is completed, choose the right answer option.
               """,
             functions=[self.transfer_to_sql_agent, self.transfer_to_explorer,
                        self.transfer_to_coder_agent,
-                       self.finalize,
-                       self.get_available_datasets],
+                       self.get_available_datasets,
+                       self.get_options,
+                       self.return_answer],
             task=task,
             name="Orchestrator"
         )
@@ -38,8 +45,6 @@ class Orchestrator(Agent):
             "CoderAgent": 0,
             "Explorer": 0
         }
-
-
 
     def get_available_datasets(self):
         """
@@ -65,7 +70,10 @@ class Orchestrator(Agent):
         :return: A string in the format "Answer i" if valid, otherwise an error message.
         """
         if isinstance(option, int) and 1 <= option <= 4:
-            return f"Answer {option}"
+            results = f"Answer {option}"
+            self.history.append({"role": "assistant", "content": results})
+            self.finished = True
+            return results
         return "Error! None of the answers are correct"
 
 

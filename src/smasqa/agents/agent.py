@@ -39,6 +39,10 @@ class Agent:
         return self.history[-1]["content"], self.history, self.turns
 
     def finalize(self, results):
-        """Finalizes the conversation."""
+        """
+        Finalize the task completion with the results.
+
+        :param results: the results of the task.
+        """
         self.history.append({"role": "assistant", "content": results})
         self.finished = True
